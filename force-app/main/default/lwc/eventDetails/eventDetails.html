@@ -1,0 +1,43 @@
+<template>
+    <lightning-card title="Event Details" icon-name="action:new_event">
+        <div class="event-details-card slds-p-around_medium">
+            <div class="slds-grid slds-wrap">
+                <!-- Left Column -->
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <div class="detail-row">
+                        <lightning-icon icon-name="standard:event" alternative-text="Event Name" size="small"></lightning-icon>
+                        <p><strong>Event Name:</strong> {eventName}</p>
+                    </div>
+                    <div class="detail-row">
+                        <lightning-icon icon-name="standard:topic" alternative-text="Event Type" size="small"></lightning-icon>
+                        <p><strong>Event Type:</strong> {eventType}</p>
+                    </div>
+                    <div class="detail-row">
+                        <lightning-icon icon-name="utility:date_input" alternative-text="Start Date" size="small"></lightning-icon>
+                        <p><strong>Start Date:</strong> {eventStartDate}</p>
+                    </div>
+                    <div class="detail-row">
+                        <lightning-icon icon-name="utility:date_input" alternative-text="End Date" size="small"></lightning-icon>
+                        <p><strong>End Date:</strong> {eventEndDate}</p>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <div class="detail-row">
+                        <lightning-icon icon-name="utility:location" alternative-text="Location" size="small"></lightning-icon>
+                        <p><strong>Location:</strong> {eventLocation}</p>
+                    </div>
+                    <div class="detail-row">
+                        <lightning-icon icon-name="utility:groups" alternative-text="Max Attendees" size="small"></lightning-icon>
+                        <p><strong>Max Attendees:</strong> {maxAttendees}</p>
+                    </div>
+                    <div class="detail-row">
+                        <lightning-icon icon-name="utility:groups" alternative-text="Attendees Registered" size="small"></lightning-icon>
+                        <p><strong>Attendees Registered:</strong> {attendeesCount}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+</template>

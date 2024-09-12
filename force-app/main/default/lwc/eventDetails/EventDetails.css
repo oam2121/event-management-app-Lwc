@@ -1,0 +1,17 @@
+.event-details-card {
+    background-color: #f4f6f9; /* Light background for card */
+    border-radius: 8px; /* Rounded corners for a smooth look */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem; /* Consistent spacing between rows */
+}
+
+.detail-row p {
+    margin-left: 0.5rem;
+    font-size: 1.1rem;
+    color: #3e3e3e;
+}

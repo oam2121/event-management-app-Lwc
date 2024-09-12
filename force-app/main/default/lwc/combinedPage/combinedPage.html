@@ -1,0 +1,16 @@
+<template>
+    <lightning-layout multiple-rows="true">
+        <!-- Event Details Section -->
+        <lightning-layout-item size="12">
+            <c-event-details record-id={recordId}></c-event-details>
+        </lightning-layout-item>
+
+        <!-- Spacer -->
+        <div class="slds-m-top_large"></div>
+
+        <!-- Attendee List Section -->
+        <lightning-layout-item size="12">
+            <c-attendee-list record-id={recordId}></c-attendee-list>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>
