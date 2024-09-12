@@ -1,3 +1,23 @@
 <template>
-    
+    <lightning-card title="Event Search" icon-name="action:search">
+        <!-- Search Inputs for Event Name -->
+        <div class="search-container">
+            <!-- Event Name Search -->
+            <lightning-input
+                name="eventName"
+                label="Search by Event Name"
+                class="search-input"
+                placeholder="Enter event name"
+                onchange={handleInputChange}>
+            </lightning-input>
+
+            <!-- Search Button -->
+            <lightning-button
+                label="Search"
+                class="search-button"
+                variant="brand"
+                onclick={handleSearch}>
+            </lightning-button>
+        </div>
+    </lightning-card>
 </template>

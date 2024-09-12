@@ -4,7 +4,7 @@ import updateEventDate from '@salesforce/apex/CalendarController.updateEventDate
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import LightningAlert from 'lightning/alert';
 import createEvent from '@salesforce/apex/CalendarController.createEvent';
-
+import searchEvents from '@salesforce/apex/EventController.searchEvents'; // Fetch the filtered events by search
 
 export default class CalendarComponent extends LightningElement {
     // Section: Track variables for modal, events, calendar, and filtering
@@ -15,6 +15,7 @@ export default class CalendarComponent extends LightningElement {
     @track calendarDays = []; // Holds the calendar grid data
     @track formattedMonthYear = ''; // Holds the formatted month and year for the calendar header
     @track events = []; // Stores all events fetched from the Apex controller
+    @track filteredEvents = []; // Stores the filtered events after a search
     @track selectedEventType = 'All'; // Tracks the selected event type for filtering
     @track selectedView = 'Monthly'; // Default view is Monthly
     @track eventTypes = [
@@ -47,7 +48,6 @@ export default class CalendarComponent extends LightningElement {
         this.loadEvents();
     }
 
-    // Section: Load events from Apex
     async loadEvents() {
         try {
             const data = await getEvents();
@@ -61,26 +61,14 @@ export default class CalendarComponent extends LightningElement {
                 location: event.Location__c,
                 style: this.eventColors[event.Event_Type__c] || this.eventColors.default
             }));
+            this.filteredEvents = this.events; // Initially show all events
             this.generateCalendar(); // Generate the calendar after loading events
         } catch (error) {
             console.error('Error loading events:', error);
         }
     }
+    
 
-    // Set the view class for buttons
-    get dailyViewVariant() {
-        return this.selectedView === 'Daily' ? 'brand' : 'neutral';
-    }
-
-    get weeklyViewVariant() {
-        return this.selectedView === 'Weekly' ? 'brand' : 'neutral';
-    }
-
-    get monthlyViewVariant() {
-        return this.selectedView === 'Monthly' ? 'brand' : 'neutral';
-    }
-
-    // Section: Generate the calendar based on the selected view
     generateCalendar() {
         if (this.selectedView === 'Daily') {
             this.generateDailyView();
@@ -90,6 +78,7 @@ export default class CalendarComponent extends LightningElement {
             this.generateMonthlyView(new Date(this.currentYear, this.currentMonth));
         }
     }
+    
 
     // Section: Daily view generation
     generateDailyView() {
@@ -155,26 +144,63 @@ export default class CalendarComponent extends LightningElement {
         this.calendarDays = daysArray;
     }
 
-    // Section: Handle the event type filtering
+    // Section: Retrieve events for a specific day based on filtered results
+    getFilteredEventsForDay(date) {
+        return this.filteredEvents.filter(event => {
+            const eventDate = new Date(event.startDate);
+            return (
+                eventDate.getDate() === date.getDate() &&
+                eventDate.getMonth() === date.getMonth() &&
+                eventDate.getFullYear() === date.getFullYear()
+            );
+        });
+    }
+
     handleFilterChange(event) {
         this.selectedEventType = event.detail.value;
-        this.loadEvents(); // Reload events to apply the filter
+        this.applySearchAndFilter(); // Apply filtering when event type is changed
     }
+    handleSearch() {
+        // Apply search logic directly
+        this.applySearchAndFilter();
+    }
+    
+    
+    async handleSearchResults(event) {
+        const searchEventName = event.detail.eventName.toLowerCase();
+        if (searchEventName) {
+            try {
+                const result = await searchEvents({ eventName: searchEventName });
+    
+                // Ensure the result is valid
+                if (result && result.length > 0) {
+                    this.filteredEvents = result.map(event => ({
+                        id: event.Id,
+                        name: event.Event_Name__c,
+                        startDate: new Date(event.Event_Start_Date__c),
+                        endDate: new Date(event.Event_End_Date__c),
+                        description: event.Event_Description__c
+                    }));
+                } else {
+                    this.filteredEvents = []; // No events found
+                }
+    
+                this.generateCalendar(); // Apply search results to the calendar
+            } catch (error) {
+                console.error('Error searching events:', error);
+            }
+        } else {
+            this.filteredEvents = this.events; // Reset to all events if search input is empty
+            this.generateCalendar();
+        }
+    }
+    
 
     // Section: Check if two dates are the same
     isSameDay(date1, date2) {
         return date1.getDate() === date2.getDate() &&
                date1.getMonth() === date2.getMonth() &&
                date1.getFullYear() === date2.getFullYear();
-    }
-
-    // Section: Retrieve events for a specific day
-    getFilteredEventsForDay(date) {
-        let eventsForDay = this.events.filter(event => this.isSameDay(event.startDate, date));
-        if (this.selectedEventType !== 'All') {
-            eventsForDay = eventsForDay.filter(event => event.type === this.selectedEventType);
-        }
-        return eventsForDay;
     }
 
     // Section: Handle drag and drop
@@ -234,78 +260,118 @@ export default class CalendarComponent extends LightningElement {
         this.newEvent[field] = event.target.value;
     }
 
-// Section: Save new event
-async saveNewEvent() {
-    try {
-        // Validate and ensure startDate and startTime exist
-        if (!this.newEvent.startDate) {
-            throw new Error('Start date is required');
-        }
-
-        if (!this.newEvent.endDate) {
-            throw new Error('End date is required');
-        }
-
-        // Default time values if not provided
-        const startTime = this.newEvent.startTime || '00:00'; // Default to midnight if no time provided
-        const endTime = this.newEvent.endTime || '23:59';     // Default to end of day if no time provided
-
-        // Combine the date and time to construct the DateTime
-        const startDate = new Date(`${this.newEvent.startDate}T${startTime}`);
-        const endDate = new Date(`${this.newEvent.endDate}T${endTime}`);
-
-        // Ensure startDate and endDate are valid
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-            throw new Error('Invalid start or end date/time');
-        }
-
-        const { eventName, eventDescription, eventType, location, maxAttendees } = this.newEvent;
-
-        console.log('Event being sent to Apex:', {
-            eventName,
-            eventDescription,
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString(),
-            eventType,
-            location,
-            maxAttendees: parseInt(maxAttendees, 10)
-        });
-
-        // Call the Apex method to create the event
-        await createEvent({
-            eventName,
-            eventDescription,
-            startDate: startDate.toISOString(),  // Convert to ISO string for DateTime
-            endDate: endDate.toISOString(),      // Convert to ISO string for DateTime
-            eventType,
-            location,
-            maxAttendees: parseInt(maxAttendees, 10)
-        });
-
-        // Show success message and reload events
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: 'Success',
-                message: 'Event created successfully!',
-                variant: 'success'
-            })
-        );
-        window.location.reload(); // Reload to reflect changes
-
-        this.isCreateModalOpen = false; // Close the modal
-        this.loadEvents(); // Reload the events
-    } catch (error) {
-        console.error('Error creating event:', error);
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: 'Error creating event',
-                message: error.message,
-                variant: 'error'
-            })
-        );
+    handleSearchInput(event) {
+        this.searchInputValue = event.target.value.trim().toLowerCase();
+        this.applySearchAndFilter();
     }
-}
+    
+    
 
+    applySearchAndFilter() {
+        let filtered = this.events;
+    
+        // Filter by event type
+        if (this.selectedEventType !== 'All') {
+            filtered = filtered.filter(event => event.type === this.selectedEventType);
+        }
+    
+        // Apply search filter
+        if (this.searchInputValue) {
+            filtered = filtered.filter(event =>
+                event.name.toLowerCase().includes(this.searchInputValue)
+            );
+        }
+    
+        // Set filtered events and generate the calendar
+        this.filteredEvents = filtered;
+        this.generateCalendar();
+    }
+    
+    
+
+    // Section: Save new event
+    async saveNewEvent() {
+        try {
+            // Validate and ensure startDate and startTime exist
+            if (!this.newEvent.startDate) {
+                throw new Error('Start date is required');
+            }
+
+            if (!this.newEvent.endDate) {
+                throw new Error('End date is required');
+            }
+
+            // Default time values if not provided
+            const startTime = this.newEvent.startTime || '00:00'; // Default to midnight if no time provided
+            const endTime = this.newEvent.endTime || '23:59';     // Default to end of day if no time provided
+
+            // Combine the date and time to construct the DateTime
+            const startDate = new Date(`${this.newEvent.startDate}T${startTime}`);
+            const endDate = new Date(`${this.newEvent.endDate}T${endTime}`);
+
+            // Ensure startDate and endDate are valid
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                throw new Error('Invalid start or end date/time');
+            }
+
+            const { eventName, eventDescription, eventType, location, maxAttendees } = this.newEvent;
+
+            console.log('Event being sent to Apex:', {
+                eventName,
+                eventDescription,
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                eventType,
+                location,
+                maxAttendees: parseInt(maxAttendees, 10)
+            });
+
+            // Call the Apex method to create the event
+            await createEvent({
+                eventName,
+                eventDescription,
+                startDate: startDate.toISOString(),  // Convert to ISO string for DateTime
+                endDate: endDate.toISOString(),      // Convert to ISO string for DateTime
+                eventType,
+                location,
+                maxAttendees: parseInt(maxAttendees, 10)
+            });
+
+            // Show success message and reload events
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Success',
+                    message: 'Event created successfully!',
+                    variant: 'success'
+                })
+            );
+            window.location.reload(); // Reload to reflect changes
+
+            this.isCreateModalOpen = false; // Close the modal
+            this.loadEvents(); // Reload the events
+        } catch (error) {
+            console.error('Error creating event:', error);
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error creating event',
+                    message: error.message,
+                    variant: 'error'
+                })
+            );
+        }
+    }
+
+    getFilteredEventsForDay(date) {
+        return this.filteredEvents.filter(event => {
+            const eventDate = new Date(event.startDate);
+            return (
+                eventDate.getDate() === date.getDate() &&
+                eventDate.getMonth() === date.getMonth() &&
+                eventDate.getFullYear() === date.getFullYear()
+            );
+        });
+    }
+    
     // Section: Close the modals
     closeModal() {
         this.isModalOpen = false;

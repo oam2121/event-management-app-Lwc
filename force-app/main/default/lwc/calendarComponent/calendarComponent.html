@@ -23,12 +23,16 @@
             </div>
         </div>
 
+  
+
         <!-- Section: Calendar Navigation and Month Display -->
         <div class="calendar-navigation">
             <lightning-button label="Previous" onclick={previousMonth} icon-name="utility:chevronleft" class="nav-button"></lightning-button>
             <h2 class="month-display">{formattedMonthYear}</h2>
             <lightning-button label="Next" onclick={nextMonth} icon-name="utility:chevronright" class="nav-button"></lightning-button>
         </div>
+
+        <c-event-search-component onsearchresults={handleSearchResults}></c-event-search-component>
 
         <!-- Section: Calendar Grid with Days and Events -->
         <div class="calendar-grid">

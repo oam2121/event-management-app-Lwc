@@ -1,0 +1,17 @@
+.search-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+}
+
+.search-input {
+    flex-grow: 2;
+    margin-right: 15px;
+}
+
+.search-button {
+    flex-grow: 1;
+    margin-left: 15px;
+}

@@ -55,4 +55,15 @@ public with sharing class EventController {
         update eventToUpdate;
     }
 
+    @AuraEnabled(cacheable=true)
+    public static List<Event__c> searchEvents(String eventName) {
+        String searchKeyword = '%' + String.escapeSingleQuotes(eventName) + '%';
+        String query = 'SELECT Id, Event_Name__c, Event_Start_Date__c, Event_End_Date__c, Event_Type__c ' + 
+                       'FROM Event__c ' +
+                       'WHERE Event_Name__c LIKE :searchKeyword ' +
+                       'LIMIT 100';
+        return Database.query(query);
+    }
+    
+
 }
