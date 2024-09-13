@@ -65,5 +65,10 @@ public with sharing class EventController {
         return Database.query(query);
     }
     
-
+    // New method to delete event
+    @AuraEnabled
+    public static void deleteEvent(Id eventId) {
+        Event__c eventToDelete = [SELECT Id FROM Event__c WHERE Id = :eventId];
+        delete eventToDelete;
+    }
 }

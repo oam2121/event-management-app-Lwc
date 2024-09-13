@@ -1,5 +1,6 @@
 import { LightningElement, api, wire } from 'lwc';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent'; // For toast messages
 
 // Import Event__c fields (replace these with your actual fields)
 import EVENT_NAME_FIELD from '@salesforce/schema/Event__c.Event_Name__c';
@@ -9,12 +10,15 @@ import EVENT_LOCATION_FIELD from '@salesforce/schema/Event__c.Location__c';
 import EVENT_TYPE_FIELD from '@salesforce/schema/Event__c.Event_Type__c';
 import MAX_ATTENDEES_FIELD from '@salesforce/schema/Event__c.Max_Attendees__c';
 import getAttendeesForEvent from '@salesforce/apex/RSVPController.getAttendeesForEvent';
+import deleteEvent from '@salesforce/apex/EventController.deleteEvent'; // For deleting event
+import { NavigationMixin } from 'lightning/navigation'; // For navigation
 
-export default class EventDetails extends LightningElement {
+export default class EventDetails extends NavigationMixin(LightningElement) {
     @api recordId; // Get the recordId from the page context
 
     attendeesCount = 0; // Stores the number of registered attendees
     error = '';
+    isDeleteDialogVisible = false; // Controls the visibility of the delete confirmation dialog
 
     // Declare the fields
     eventFields = [
@@ -62,5 +66,58 @@ export default class EventDetails extends LightningElement {
         } else if (error) {
             this.error = error.body.message;
         }
+    }
+
+    // Show delete confirmation dialog
+    showDeleteConfirmation() {
+        this.isDeleteDialogVisible = true;
+    }
+
+    // Close delete confirmation dialog
+    closeDeleteConfirmation() {
+        this.isDeleteDialogVisible = false;
+    }
+
+    // Handle event deletion
+    handleDeleteEvent() {
+        deleteEvent({ eventId: this.recordId })
+            .then(() => {
+                this.showToast('Success', 'Event deleted successfully', 'success');
+                this.closeDeleteConfirmation(); // Close the confirmation dialog
+                // Navigate back to the event list
+                this[NavigationMixin.Navigate]({
+                    type: 'standard__objectPage',
+                    attributes: {
+                        objectApiName: 'Event__c',
+                        actionName: 'list'
+                    }
+                });
+            })
+            .catch(error => {
+                this.showToast('Error', 'Error deleting event', 'error');
+                console.error('Error deleting event:', error);
+            });
+    }
+
+    // Handle edit event (Navigate to the edit page)
+    handleEditEvent() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: this.recordId,
+                objectApiName: 'Event__c',
+                actionName: 'edit'
+            }
+        });
+    }
+
+    // Utility function to show toast messages
+    showToast(title, message, variant) {
+        const event = new ShowToastEvent({
+            title: title,
+            message: message,
+            variant: variant
+        });
+        this.dispatchEvent(event);
     }
 }
