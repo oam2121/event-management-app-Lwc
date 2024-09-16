@@ -46,7 +46,13 @@ export default class CalendarComponent extends LightningElement {
     // Lifecycle hook: Runs when the component is inserted into the DOM
     connectedCallback() {
         this.loadEvents();
+        this.today = new Date();
     }
+
+    getDayClass(day) {
+        return `calendar-day ${day.isToday ? 'today' : ''}`;
+    }
+    
 
     async loadEvents() {
         try {
@@ -111,38 +117,44 @@ export default class CalendarComponent extends LightningElement {
 
         this.calendarDays = daysArray;
     }
-
-    // Section: Monthly view generation
     generateMonthlyView(currentDate) {
         const currentMonth = currentDate.getMonth();
         const currentYear = currentDate.getFullYear();
         this.currentMonth = currentMonth;
         this.currentYear = currentYear;
-
+    
         const firstDay = new Date(currentYear, currentMonth, 1);
         const lastDay = new Date(currentYear, currentMonth + 1, 0);
         const options = { year: 'numeric', month: 'long' };
         this.formattedMonthYear = new Intl.DateTimeFormat('en-US', options).format(firstDay);
-
+    
         let daysArray = [];
-
+    
+        // Add empty slots for days before the first day of the month
         for (let i = 0; i < firstDay.getDay(); i++) {
-            daysArray.push({ formattedDate: '', events: [] });
+            daysArray.push({ formattedDate: '', events: [], isToday: false, dayClass: 'calendar-day' });
         }
-
+    
+        // Loop through all days of the month
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const date = new Date(currentYear, currentMonth, day);
             const eventsForDay = this.getFilteredEventsForDay(date);
-
+    
+            // Check if the current date is today
+            const isToday = this.isSameDay(date, this.today);
+    
             daysArray.push({
                 formattedDate: day,
                 events: eventsForDay,
-                dateISO: this.formatDateToLocal(date)
+                dateISO: this.formatDateToLocal(date),
+                isToday: isToday,
+                dayClass: isToday ? 'calendar-day today' : 'calendar-day'
             });
         }
-
+    
         this.calendarDays = daysArray;
     }
+    
 
     // Section: Retrieve events for a specific day based on filtered results
     getFilteredEventsForDay(date) {
@@ -289,16 +301,26 @@ export default class CalendarComponent extends LightningElement {
     
     
 
-    // Section: Save new event
-    async saveNewEvent() {
+     // Section: Save new event
+     async saveNewEvent() {
         try {
-            // Validate and ensure startDate and startTime exist
+            // Validate and ensure startDate and endDate exist
             if (!this.newEvent.startDate) {
-                throw new Error('Start date is required');
+                await LightningAlert.open({
+                    message: 'Start date is required',
+                    theme: 'error',
+                    label: 'Validation Error',
+                });
+                return;
             }
 
             if (!this.newEvent.endDate) {
-                throw new Error('End date is required');
+                await LightningAlert.open({
+                    message: 'End date is required',
+                    theme: 'error',
+                    label: 'Validation Error',
+                });
+                return;
             }
 
             // Default time values if not provided
@@ -311,7 +333,32 @@ export default class CalendarComponent extends LightningElement {
 
             // Ensure startDate and endDate are valid
             if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-                throw new Error('Invalid start or end date/time');
+                await LightningAlert.open({
+                    message: 'Invalid start or end date/time',
+                    theme: 'error',
+                    label: 'Validation Error',
+                });
+                return;
+            }
+
+            // Check if the start date is in the past
+            if (startDate < new Date()) {
+                await LightningAlert.open({
+                    message: 'The start date cannot be in the past.',
+                    theme: 'error',
+                    label: 'Validation Error',
+                });
+                return;
+            }
+
+            // Check if the end date is before the start date
+            if (endDate < startDate) {
+                await LightningAlert.open({
+                    message: 'The end date cannot be earlier than the start date.',
+                    theme: 'error',
+                    label: 'Validation Error',
+                });
+                return;
             }
 
             const { eventName, eventDescription, eventType, location, maxAttendees } = this.newEvent;
@@ -345,8 +392,9 @@ export default class CalendarComponent extends LightningElement {
                     variant: 'success'
                 })
             );
-            window.location.reload(); // Reload to reflect changes
 
+            // Reload the page and close modal
+            window.location.reload(); // Reload to reflect changes
             this.isCreateModalOpen = false; // Close the modal
             this.loadEvents(); // Reload the events
         } catch (error) {

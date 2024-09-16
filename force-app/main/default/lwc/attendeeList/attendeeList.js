@@ -13,6 +13,8 @@ export default class AttendeeList extends LightningElement {
     @track isLoading = true;
     @track wiredAttendeesResult;
     @track isModalOpen = false; // To control modal visibility
+    @track isDeleteDialogOpen = false; // To control delete confirmation dialog
+    @track attendeeToDelete = null; // To store the attendee to delete
 
     // Attendee fields for the modal
     @track newAttendeeName = '';
@@ -63,7 +65,7 @@ export default class AttendeeList extends LightningElement {
         }
     }
 
-    // Open the modal
+    // Open the modal for adding a new attendee
     openModal() {
         this.isModalOpen = true;
     }
@@ -133,7 +135,41 @@ export default class AttendeeList extends LightningElement {
         if (actionName === 'toggleRSVPStatus') {
             this.toggleRSVPStatus(attendeeId);
         } else if (actionName === 'deleteRSVP') {
-            this.deleteRSVP(attendeeId);
+            this.showDeleteConfirmation(attendeeId);
+        }
+    }
+
+    // Show delete confirmation dialog
+    showDeleteConfirmation(attendeeId) {
+        this.attendeeToDelete = attendeeId; // Store the attendee ID to delete
+        this.isDeleteDialogOpen = true; // Show the confirmation modal
+    }
+
+    // Close the delete confirmation dialog
+    closeDeleteConfirmation() {
+        this.isDeleteDialogOpen = false; // Close the confirmation modal
+        this.attendeeToDelete = null; // Clear the stored attendee ID
+    }
+
+    // Confirm delete attendee
+    async confirmDeleteAttendee() {
+        this.isLoading = true;
+        try {
+            await deleteRSVP({ attendeeId: this.attendeeToDelete });
+
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Success',
+                    message: 'RSVP deleted.',
+                    variant: 'success',
+                })
+            );
+            this.closeDeleteConfirmation(); // Close the modal
+            await refreshApex(this.wiredAttendeesResult);
+        } catch (error) {
+            this.handleError(error);
+        } finally {
+            this.isLoading = false;
         }
     }
 
@@ -147,27 +183,6 @@ export default class AttendeeList extends LightningElement {
                 new ShowToastEvent({
                     title: 'Success',
                     message: 'RSVP status updated.',
-                    variant: 'success',
-                })
-            );
-            await refreshApex(this.wiredAttendeesResult);
-        } catch (error) {
-            this.handleError(error);
-        } finally {
-            this.isLoading = false;
-        }
-    }
-
-    // Delete RSVP and update Seats_Allocated__c
-    async deleteRSVP(attendeeId) {
-        this.isLoading = true;
-        try {
-            await deleteRSVP({ attendeeId });
-
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Success',
-                    message: 'RSVP deleted.',
                     variant: 'success',
                 })
             );
@@ -193,3 +208,5 @@ export default class AttendeeList extends LightningElement {
         );
     }
 }
+
+       

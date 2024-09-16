@@ -9,6 +9,7 @@ import EVENT_END_DATE_FIELD from '@salesforce/schema/Event__c.Event_End_Date__c'
 import EVENT_LOCATION_FIELD from '@salesforce/schema/Event__c.Location__c';
 import EVENT_TYPE_FIELD from '@salesforce/schema/Event__c.Event_Type__c';
 import MAX_ATTENDEES_FIELD from '@salesforce/schema/Event__c.Max_Attendees__c';
+import EVENt_DESCRIPTION_FIELD from '@salesforce/schema/Event__c.Event_Description__c';
 import getAttendeesForEvent from '@salesforce/apex/RSVPController.getAttendeesForEvent';
 import deleteEvent from '@salesforce/apex/EventController.deleteEvent'; // For deleting event
 import { NavigationMixin } from 'lightning/navigation'; // For navigation
@@ -27,10 +28,11 @@ export default class EventDetails extends NavigationMixin(LightningElement) {
         EVENT_END_DATE_FIELD,
         EVENT_LOCATION_FIELD,
         EVENT_TYPE_FIELD,
-        MAX_ATTENDEES_FIELD
+        MAX_ATTENDEES_FIELD,
+        EVENt_DESCRIPTION_FIELD
     ];
 
-    @wire(getRecord, { recordId: '$recordId', fields: [EVENT_NAME_FIELD, EVENT_START_DATE_FIELD, EVENT_END_DATE_FIELD, EVENT_LOCATION_FIELD, EVENT_TYPE_FIELD, MAX_ATTENDEES_FIELD] })
+    @wire(getRecord, { recordId: '$recordId', fields: [EVENT_NAME_FIELD, EVENT_START_DATE_FIELD, EVENT_END_DATE_FIELD, EVENT_LOCATION_FIELD, EVENT_TYPE_FIELD, MAX_ATTENDEES_FIELD, EVENt_DESCRIPTION_FIELD] })
     event;
 
     // Getters to fetch field values
@@ -56,6 +58,10 @@ export default class EventDetails extends NavigationMixin(LightningElement) {
 
     get maxAttendees() {
         return getFieldValue(this.event.data, MAX_ATTENDEES_FIELD);
+    }
+
+    get eventDescription(){
+         return getFieldValue(this.event.data, EVENt_DESCRIPTION_FIELD);
     }
 
     // Wire to fetch the number of attendees

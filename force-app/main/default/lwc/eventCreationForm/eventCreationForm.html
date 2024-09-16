@@ -1,10 +1,19 @@
 <template>
     <lightning-card title="Create New Event" icon-name="action:new_event">
         <div class="slds-p-around_medium">
+            <!-- Event Name Input -->
             <lightning-input label="Event Name" value={eventName} onchange={handleChange} data-id="eventName" class="slds-m-bottom_medium"></lightning-input>
 
-            <lightning-textarea label="Event Description" value={eventDescription} onchange={handleChange} data-id="eventDescription" class="slds-m-bottom_medium"></lightning-textarea>
+            <!-- Rich Text Editor for Event Description -->
+            <lightning-input-rich-text
+                label="Event Description"
+                value={eventDescription}
+                onchange={handleChange}
+                data-id="eventDescription"
+                class="slds-m-bottom_medium">
+            </lightning-input-rich-text>
 
+            <!-- Date Inputs -->
             <div class="slds-grid slds-wrap">
                 <div class="slds-col slds-size_1-of-2 slds-p-around_small">
                     <lightning-input label="Start Date" type="datetime-local" value={startDate} onchange={handleChange} data-id="startDate"></lightning-input>
@@ -14,15 +23,19 @@
                 </div>
             </div>
 
+            <!-- Location Input -->
             <lightning-input label="Location" value={location} onchange={handleChange} data-id="location" class="slds-m-bottom_medium"></lightning-input>
 
+            <!-- Max Attendees Input -->
             <lightning-input label="Max Attendees" type="number" value={maxAttendees} onchange={handleChange} data-id="maxAttendees" class="slds-m-bottom_medium"></lightning-input>
 
+            <!-- Event Type Combobox -->
             <lightning-combobox label="Event Type" value={eventType} 
                                 options={eventTypeOptions} 
                                 onchange={handleChange} 
                                 data-id="eventType" class="slds-m-bottom_medium"></lightning-combobox>
 
+            <!-- Create Event Button -->
             <lightning-button label="Create Event" onclick={createEvent} class="slds-m-top_medium" variant="brand"></lightning-button>
         </div>
     </lightning-card>

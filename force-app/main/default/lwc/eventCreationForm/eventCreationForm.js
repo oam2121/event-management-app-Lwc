@@ -77,7 +77,26 @@ export default class EventCreationForm extends LightningElement {
         if (field === 'eventType') this.eventType = event.target.value;
     }
 
-    createEvent() {
+    async createEvent() {
+        // Validate Start Date and End Date
+        const currentDateTime = new Date().toISOString();
+        if (this.startDate < currentDateTime) {
+            await LightningAlert.open({
+                message: 'The start date cannot be in the past.',
+                theme: 'error',
+                label: 'Date Validation Error',
+            });
+            return;
+        }
+        if (this.endDate < this.startDate) {
+            await LightningAlert.open({
+                message: 'The end date cannot be earlier than the start date.',
+                theme: 'error',
+                label: 'Date Validation Error',
+            });
+            return;
+        }
+
         const eventDetails = {
             eventName: this.eventName,
             eventDescription: this.eventDescription,
@@ -87,7 +106,7 @@ export default class EventCreationForm extends LightningElement {
             maxAttendees: this.maxAttendees,
             eventType: this.eventType,
         };
-        
+
         createEvent({ eventData: eventDetails })
             .then(result => {
                 this.dispatchEvent(
@@ -103,15 +122,12 @@ export default class EventCreationForm extends LightningElement {
                 this.dispatchEvent(
                     new ShowToastEvent({
                         title: 'Error creating event',
-                        message: error.body.message.includes('conflict')
-                            ? 'Event conflict detected. Please choose a different time.'
-                            : error.body.message,
+                        message: error.body.message,
                         variant: 'error',
                     })
                 );
             });
     }
-
     resetForm() {
         this.eventName = '';
         this.eventDescription = '';

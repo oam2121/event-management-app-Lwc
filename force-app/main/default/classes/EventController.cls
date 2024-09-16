@@ -10,11 +10,21 @@ public with sharing class EventController {
         String location = (String) eventData.get('location');
         Integer maxAttendees = Integer.valueOf(eventData.get('maxAttendees'));
         String eventType = (String) eventData.get('eventType');
-
+    
         // Convert start and end dates to Datetime format
         Datetime startDate = Datetime.valueOfGmt(startDateString.replace('T', ' ').replace('Z', ''));
         Datetime endDate = Datetime.valueOfGmt(endDateString.replace('T', ' ').replace('Z', ''));
-
+    
+        // Validate: Start date should not be in the past
+        if (startDate < Datetime.now()) {
+            throw new AuraHandledException('The start date cannot be in the past.');
+        }
+    
+        // Validate: End date should not be earlier than the start date
+        if (endDate < startDate) {
+            throw new AuraHandledException('The end date cannot be earlier than the start date.');
+        }
+    
         // Create new event
         Event__c newEvent = new Event__c();
         newEvent.Event_Name__c = eventName;
@@ -24,10 +34,11 @@ public with sharing class EventController {
         newEvent.Location__c = location;
         newEvent.Max_Attendees__c = maxAttendees;
         newEvent.Event_Type__c = eventType;
-
+    
         insert newEvent;
         return newEvent.Id;
     }
+    
 
     @AuraEnabled(cacheable=true)
     public static List<String> getEventTypes() {

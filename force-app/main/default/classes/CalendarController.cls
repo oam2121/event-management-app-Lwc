@@ -45,7 +45,18 @@ public with sharing class CalendarController {
     }
 
     @AuraEnabled
-    public static Id createEvent(String eventName, String eventDescription, DateTime startDate, DateTime endDate, String eventType, String location, Integer maxAttendees) {
+    public static Id createEvent(String eventName, String eventDescription, Datetime startDate, Datetime endDate, String eventType, String location, Integer maxAttendees) {
+        // Validate: Start date should not be in the past
+        if (startDate < Datetime.now()) {
+            throw new AuraHandledException('The start date cannot be in the past.');
+        }
+    
+        // Validate: End date should not be earlier than the start date
+        if (endDate < startDate) {
+            throw new AuraHandledException('The end date cannot be earlier than the start date.');
+        }
+    
+        // Create new event
         Event__c newEvent = new Event__c();
         newEvent.Event_Name__c = eventName;
         newEvent.Event_Description__c = eventDescription;
@@ -55,7 +66,7 @@ public with sharing class CalendarController {
         newEvent.Location__c = location;
         newEvent.Max_Attendees__c = maxAttendees;
         newEvent.Seats_Allocated__c = 0; // Initialize seats allocated
-        
+    
         insert newEvent;
         return newEvent.Id;
     }
