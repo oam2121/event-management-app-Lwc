@@ -1,6 +1,6 @@
 import { LightningElement, api, wire } from 'lwc';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent'; // For toast messages
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 // Import Event__c fields (replace these with your actual fields)
 import EVENT_NAME_FIELD from '@salesforce/schema/Event__c.Event_Name__c';
@@ -9,7 +9,9 @@ import EVENT_END_DATE_FIELD from '@salesforce/schema/Event__c.Event_End_Date__c'
 import EVENT_LOCATION_FIELD from '@salesforce/schema/Event__c.Location__c';
 import EVENT_TYPE_FIELD from '@salesforce/schema/Event__c.Event_Type__c';
 import MAX_ATTENDEES_FIELD from '@salesforce/schema/Event__c.Max_Attendees__c';
-import EVENt_DESCRIPTION_FIELD from '@salesforce/schema/Event__c.Event_Description__c';
+import EVENT_DESCRIPTION_FIELD from '@salesforce/schema/Event__c.Event_Description__c';
+import MEETING_LINK_FIELD from '@salesforce/schema/Event__c.Meeting_Link__c';  // Add Meeting Link field
+
 import getAttendeesForEvent from '@salesforce/apex/RSVPController.getAttendeesForEvent';
 import deleteEvent from '@salesforce/apex/EventController.deleteEvent'; // For deleting event
 import { NavigationMixin } from 'lightning/navigation'; // For navigation
@@ -29,10 +31,11 @@ export default class EventDetails extends NavigationMixin(LightningElement) {
         EVENT_LOCATION_FIELD,
         EVENT_TYPE_FIELD,
         MAX_ATTENDEES_FIELD,
-        EVENt_DESCRIPTION_FIELD
+        EVENT_DESCRIPTION_FIELD,
+        MEETING_LINK_FIELD  // Include Meeting Link field
     ];
 
-    @wire(getRecord, { recordId: '$recordId', fields: [EVENT_NAME_FIELD, EVENT_START_DATE_FIELD, EVENT_END_DATE_FIELD, EVENT_LOCATION_FIELD, EVENT_TYPE_FIELD, MAX_ATTENDEES_FIELD, EVENt_DESCRIPTION_FIELD] })
+    @wire(getRecord, { recordId: '$recordId', fields: [EVENT_NAME_FIELD, EVENT_START_DATE_FIELD, EVENT_END_DATE_FIELD, EVENT_LOCATION_FIELD, EVENT_TYPE_FIELD, MAX_ATTENDEES_FIELD, EVENT_DESCRIPTION_FIELD, MEETING_LINK_FIELD] })
     event;
 
     // Getters to fetch field values
@@ -61,7 +64,23 @@ export default class EventDetails extends NavigationMixin(LightningElement) {
     }
 
     get eventDescription(){
-         return getFieldValue(this.event.data, EVENt_DESCRIPTION_FIELD);
+        return getFieldValue(this.event.data, EVENT_DESCRIPTION_FIELD);
+    }
+
+    get meetingLink() {
+        return getFieldValue(this.event.data, MEETING_LINK_FIELD);  // Fetch meeting link
+    }
+
+    // Google Calendar Link Handler
+    addGoogleCalendar() {
+        const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(this.eventName)}&dates=${this.eventStartDate}/${this.eventEndDate}&details=${encodeURIComponent(this.eventDescription)}&location=${encodeURIComponent(this.eventLocation)}&sf=true&output=xml`;
+        window.open(googleCalendarUrl, '_blank');
+    }
+
+    // Outlook Calendar Link Handler
+    addOutlookCalendar() {
+        const outlookCalendarUrl = `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&subject=${encodeURIComponent(this.eventName)}&startdt=${this.eventStartDate}&enddt=${this.eventEndDate}&body=${encodeURIComponent(this.eventDescription)}&location=${encodeURIComponent(this.eventLocation)}`;
+        window.open(outlookCalendarUrl, '_blank');
     }
 
     // Wire to fetch the number of attendees

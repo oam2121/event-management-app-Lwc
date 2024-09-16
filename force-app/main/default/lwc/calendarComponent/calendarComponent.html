@@ -81,31 +81,36 @@
                 </button>
             </header>
 
-            <!-- Modal Body -->
-            <div class="slds-modal__content slds-p-around_medium custom-modal-body">
-                <div class="modal-section">
-                    <lightning-icon icon-name="standard:event" size="small"></lightning-icon>
-                    <p><strong>Type:</strong> {selectedEvent.type}</p>
-                </div>
-                <div class="modal-section">
-                    <lightning-icon icon-name="utility:date_input" size="small"></lightning-icon>
-                    <p><strong>Start Date:</strong> {selectedEvent.startDate}</p>
-                </div>
-                <div class="modal-section">
-                    <lightning-icon icon-name="utility:date_input" size="small"></lightning-icon>
-                    <p><strong>End Date:</strong> {selectedEvent.endDate}</p>
-                </div>
-                <div class="modal-section">
-                    <lightning-icon icon-name="utility:description" size="small"></lightning-icon>
-                    <!-- Rendering the rich text content properly -->
-                    <p><strong>Description:</strong></p>
-                    <lightning-formatted-rich-text value={selectedEvent.description}></lightning-formatted-rich-text>
-                </div>
-                <div class="modal-section">
-                    <lightning-icon icon-name="utility:location" size="small"></lightning-icon>
-                    <p><strong>Location:</strong> {selectedEvent.location}</p>
-                </div>
-            </div>
+           <!-- Modal Body -->
+<div class="slds-modal__content slds-p-around_medium custom-modal-body">
+    <div class="modal-section">
+        <lightning-icon icon-name="standard:event" size="small"></lightning-icon>
+        <p><strong>Type:</strong> {selectedEvent.type}</p>
+    </div>
+    <div class="modal-section">
+        <lightning-icon icon-name="utility:date_input" size="small"></lightning-icon>
+        <p><strong>Start Date:</strong> {selectedEvent.startDate}</p>
+    </div>
+    <div class="modal-section">
+        <lightning-icon icon-name="utility:date_input" size="small"></lightning-icon>
+        <p><strong>End Date:</strong> {selectedEvent.endDate}</p>
+    </div>
+    <div class="modal-section">
+        <lightning-icon icon-name="utility:description" size="small"></lightning-icon>
+        <p><strong>Description:</strong></p>
+        <lightning-formatted-rich-text value={selectedEvent.description}></lightning-formatted-rich-text>
+    </div>
+    <div class="modal-section">
+        <lightning-icon icon-name="utility:location" size="small"></lightning-icon>
+        <p><strong>Location:</strong> {selectedEvent.location}</p>
+    </div>
+    
+    <div class="modal-section">
+        <lightning-icon icon-name="utility:link" size="small"></lightning-icon>
+        <p><strong>Meeting Link:</strong> <a href={selectedEvent.meetingLink} target="_blank">{selectedEvent.meetingLink}</a></p>
+    </div>
+</div>
+
 
             <!-- Modal Footer -->
             <footer class="slds-modal__footer custom-modal-footer">
@@ -152,8 +157,8 @@
     <!-- Location Input -->
     <lightning-input name="location" label="Location" class="slds-m-bottom_medium" onchange={handleInputChange}></lightning-input>
 
-    <!-- Meeting Link Input (URL) -->
-    <lightning-input name="meetingLink" label="Meeting Link" type="url" class="slds-m-bottom_medium" onchange={handleInputChange}></lightning-input>
+    <!-- Meeting Link Input -->
+<lightning-input name="meetingLink" label="Meeting Link" type="url" class="slds-m-bottom_medium" value={newEvent.meetingLink} onchange={handleInputChange}></lightning-input>
 
     <!-- Event Type Input -->
     <lightning-combobox name="eventType" label="Event Type" value={newEvent.eventType} options={eventTypes} class="slds-m-bottom_medium" onchange={handleInputChange}></lightning-combobox>
@@ -172,4 +177,34 @@
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
+
+    <template if:true={isRSVPModalOpen}>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+        <div class="slds-modal__container">
+            <!-- Modal Header -->
+            <header class="slds-modal__header custom-modal-header">
+                <h2 class="slds-text-heading_medium">RSVP for Event</h2>
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeRSVPModal}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                </button>
+            </header>
+
+            <!-- Modal Body -->
+            <div class="slds-modal__content slds-p-around_medium custom-modal-body">
+                <lightning-input name="attendeeName" label="Name" value={attendeeName} onchange={handleInputChange} class="slds-m-bottom_medium"></lightning-input>
+                <lightning-input name="attendeeEmail" label="Email" type="email" value={attendeeEmail} onchange={handleInputChange} class="slds-m-bottom_medium"></lightning-input>
+                <lightning-input name="attendeePhone" label="Phone" type="tel" value={attendeePhone} onchange={handleInputChange} class="slds-m-bottom_medium"></lightning-input>
+            </div>
+
+            <!-- Modal Footer -->
+            <footer class="slds-modal__footer custom-modal-footer">
+                <lightning-button variant="neutral" label="Add Another" onclick={submitRSVPAddAnother}></lightning-button>
+                <lightning-button variant="brand" label="Submit RSVP" onclick={submitRSVP}></lightning-button>
+                <lightning-button variant="neutral" label="Close" onclick={closeRSVPModal}></lightning-button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>
+
 </template>

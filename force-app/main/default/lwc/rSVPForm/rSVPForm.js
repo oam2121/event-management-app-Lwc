@@ -1,9 +1,9 @@
 import { LightningElement, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import submitRSVP from '@salesforce/apex/RSVPController.submitRSVP';
-import getEvents from '@salesforce/apex/RSVPController.getEvents'; // Fetch events
+import getEvents from '@salesforce/apex/RSVPController.getEvents';
 
-export default class RSVPForm extends LightningElement {
+export default class RsvpForm extends LightningElement {
     attendeeName = '';
     attendeeEmail = '';
     attendeePhone = '';
@@ -11,18 +11,16 @@ export default class RSVPForm extends LightningElement {
     eventOptions = [];
     error = '';
 
-    // Wire to fetch event options dynamically
     @wire(getEvents)
     wiredEvents({ error, data }) {
         if (data) {
-            console.log('Events fetched:', data); // Debug to see the fetched data
-            this.eventOptions = data.map(event => {
-                return { label: event.Event_Name__c, value: event.Id }; // Display Event_Name__c, pass Event Id
-            });
+            this.eventOptions = data.map(event => ({
+                label: event.Event_Name__c,
+                value: event.Id
+            }));
             this.error = undefined;
         } else if (error) {
             this.error = error;
-            console.error('Error fetching events:', error); // Log error for debugging
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Error loading events',
@@ -35,26 +33,32 @@ export default class RSVPForm extends LightningElement {
 
     handleInputChange(event) {
         const field = event.target.dataset.id;
-        if (field === 'attendeeName') {
-            this.attendeeName = event.target.value;
-        } else if (field === 'attendeeEmail') {
-            this.attendeeEmail = event.target.value;
-        } else if (field === 'attendeePhone') {
-            this.attendeePhone = event.target.value;
-        } else if (field === 'selectedEvent') {
-            this.selectedEvent = event.target.value; // This will now hold the Event Id
+        switch (field) {
+            case 'attendeeName':
+                this.attendeeName = event.target.value;
+                break;
+            case 'attendeeEmail':
+                this.attendeeEmail = event.target.value;
+                break;
+            case 'attendeePhone':
+                this.attendeePhone = event.target.value;
+                break;
+            case 'selectedEvent':
+                this.selectedEvent = event.target.value;
+                break;
         }
     }
 
     submitRSVP() {
-        if (this.attendeeName && this.attendeeEmail && this.attendeePhone && this.selectedEvent) {
+        if (this.attendeeName && this.attendeeEmail && 
+            this.attendeePhone && this.selectedEvent) {
             submitRSVP({ 
-                eventId: this.selectedEvent, // Pass the Event Id here
-                attendeeName: this.attendeeName, 
-                attendeeEmail: this.attendeeEmail, 
-                attendeePhone: this.attendeePhone 
+                eventId: this.selectedEvent,
+                attendeeName: this.attendeeName,
+                attendeeEmail: this.attendeeEmail,
+                attendeePhone: this.attendeePhone
             })
-            .then(result => {
+            .then(() => {
                 this.dispatchEvent(
                     new ShowToastEvent({
                         title: 'Success',

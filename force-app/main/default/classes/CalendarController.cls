@@ -9,7 +9,8 @@ public with sharing class CalendarController {
                    Event_End_Date__c, 
                    Event_Type__c, 
                    Event_Description__c,
-                   Location__c
+                   Location__c,
+                   Meeting_Link__c
             FROM Event__c
             WHERE Event_Start_Date__c != NULL
         ];
@@ -45,7 +46,7 @@ public with sharing class CalendarController {
     }
 
     @AuraEnabled
-    public static Id createEvent(String eventName, String eventDescription, Datetime startDate, Datetime endDate, String eventType, String location, Integer maxAttendees) {
+    public static Id createEvent(String eventName, String eventDescription, Datetime startDate, Datetime endDate, String eventType, String location, Integer maxAttendees, String meetingLink) {
         // Validate: Start date should not be in the past
         if (startDate < Datetime.now()) {
             throw new AuraHandledException('The start date cannot be in the past.');
@@ -66,6 +67,7 @@ public with sharing class CalendarController {
         newEvent.Location__c = location;
         newEvent.Max_Attendees__c = maxAttendees;
         newEvent.Seats_Allocated__c = 0; // Initialize seats allocated
+        newEvent.Meeting_Link__c = meetingLink; // Add meeting link field
     
         insert newEvent;
         return newEvent.Id;

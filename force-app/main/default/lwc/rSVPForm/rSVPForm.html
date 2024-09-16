@@ -1,18 +1,25 @@
 <template>
-    <lightning-card title="RSVP for Event" icon-name="action:approval">
-        <div class="slds-p-around_medium">
-            <lightning-combobox label="Select Event" value={selectedEvent} 
-                                options={eventOptions} 
-                                onchange={handleInputChange} data-id="selectedEvent"
-                                class="slds-m-bottom_medium"></lightning-combobox>
-            
-            <lightning-input label="Name" value={attendeeName} onchange={handleInputChange} data-id="attendeeName" class="slds-m-bottom_medium"></lightning-input>
-
-            <lightning-input label="Email" type="email" value={attendeeEmail} onchange={handleInputChange} data-id="attendeeEmail" class="slds-m-bottom_medium"></lightning-input>
-
-            <lightning-input label="Phone" type="tel" value={attendeePhone} onchange={handleInputChange} data-id="attendeePhone" class="slds-m-bottom_medium"></lightning-input>
-
-            <lightning-button label="RSVP" variant="brand" onclick={submitRSVP} class="slds-m-top_medium"></lightning-button>
+    <lightning-card title="RSVP Form" icon-name="custom:custom14">
+        <div class="slds-p-horizontal_medium slds-p-vertical_small">
+            <lightning-combobox label="Select Event" value={selectedEvent}
+                options={eventOptions} onchange={handleInputChange}
+                data-id="selectedEvent" class="slds-m-bottom_medium">
+            </lightning-combobox>
+            <lightning-input label="Name" value={attendeeName}
+                onchange={handleInputChange} data-id="attendeeName"
+                class="slds-m-bottom_medium">
+            </lightning-input>
+            <lightning-input label="Email" type="email" value={attendeeEmail}
+                onchange={handleInputChange} data-id="attendeeEmail"
+                class="slds-m-bottom_medium">
+            </lightning-input>
+            <lightning-input label="Phone" type="tel" value={attendeePhone}
+                onchange={handleInputChange} data-id="attendeePhone"
+                class="slds-m-bottom_medium">
+            </lightning-input>
+            <lightning-button label="RSVP" variant="brand" onclick={submitRSVP}
+                class="slds-m-top_medium">
+            </lightning-button>
         </div>
     </lightning-card>
 </template>

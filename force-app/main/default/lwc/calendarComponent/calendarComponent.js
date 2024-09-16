@@ -4,6 +4,7 @@ import updateEventDate from '@salesforce/apex/CalendarController.updateEventDate
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import LightningAlert from 'lightning/alert';
 import createEvent from '@salesforce/apex/CalendarController.createEvent';
+import submitRSVP from '@salesforce/apex/RSVPController.submitRSVP';  // <-- Make sure this import is present
 import searchEvents from '@salesforce/apex/EventController.searchEvents'; // Fetch the filtered events by search
 
 export default class CalendarComponent extends LightningElement {
@@ -18,6 +19,12 @@ export default class CalendarComponent extends LightningElement {
     @track filteredEvents = []; // Stores the filtered events after a search
     @track selectedEventType = 'All'; // Tracks the selected event type for filtering
     @track selectedView = 'Monthly'; // Default view is Monthly
+    @track isRSVPModalOpen = false;
+    @track attendeeName = '';
+    @track attendeeEmail = '';
+    @track attendeePhone = '';
+    @track meetingLink
+    newEventId = '';  // To store the new event Id after creating it
     @track eventTypes = [
         { label: 'All', value: 'All' },
         { label: 'Webinar', value: 'Webinar' },
@@ -64,9 +71,11 @@ export default class CalendarComponent extends LightningElement {
                 startDate: new Date(event.Event_Start_Date__c),
                 endDate: event.Event_End_Date__c,
                 description: event.Event_Description__c,
-                location: event.Location__c,
+                location: event.Location__c,  // Ensure location is populated here
+                meetingLink: event.Meeting_Link__c,  // Ensure meeting link is populated here
                 style: this.eventColors[event.Event_Type__c] || this.eventColors.default
             }));
+            
             this.filteredEvents = this.events; // Initially show all events
             this.generateCalendar(); // Generate the calendar after loading events
         } catch (error) {
@@ -266,11 +275,6 @@ export default class CalendarComponent extends LightningElement {
         this.isCreateModalOpen = true;
     }
 
-    // Section: Handle form inputs for new event creation
-    handleInputChange(event) {
-        const field = event.target.name;
-        this.newEvent[field] = event.target.value;
-    }
 
     handleSearchInput(event) {
         this.searchInputValue = event.target.value.trim().toLowerCase();
@@ -299,10 +303,7 @@ export default class CalendarComponent extends LightningElement {
         this.generateCalendar();
     }
     
-    
-
-     // Section: Save new event
-     async saveNewEvent() {
+    async saveNewEvent() {
         try {
             // Validate and ensure startDate and endDate exist
             if (!this.newEvent.startDate) {
@@ -313,7 +314,7 @@ export default class CalendarComponent extends LightningElement {
                 });
                 return;
             }
-
+    
             if (!this.newEvent.endDate) {
                 await LightningAlert.open({
                     message: 'End date is required',
@@ -322,16 +323,12 @@ export default class CalendarComponent extends LightningElement {
                 });
                 return;
             }
-
-            // Default time values if not provided
-            const startTime = this.newEvent.startTime || '00:00'; // Default to midnight if no time provided
-            const endTime = this.newEvent.endTime || '23:59';     // Default to end of day if no time provided
-
-            // Combine the date and time to construct the DateTime
+    
+            const startTime = this.newEvent.startTime || '00:00';
+            const endTime = this.newEvent.endTime || '23:59';
             const startDate = new Date(`${this.newEvent.startDate}T${startTime}`);
             const endDate = new Date(`${this.newEvent.endDate}T${endTime}`);
-
-            // Ensure startDate and endDate are valid
+    
             if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
                 await LightningAlert.open({
                     message: 'Invalid start or end date/time',
@@ -340,8 +337,7 @@ export default class CalendarComponent extends LightningElement {
                 });
                 return;
             }
-
-            // Check if the start date is in the past
+    
             if (startDate < new Date()) {
                 await LightningAlert.open({
                     message: 'The start date cannot be in the past.',
@@ -350,8 +346,7 @@ export default class CalendarComponent extends LightningElement {
                 });
                 return;
             }
-
-            // Check if the end date is before the start date
+    
             if (endDate < startDate) {
                 await LightningAlert.open({
                     message: 'The end date cannot be earlier than the start date.',
@@ -360,54 +355,130 @@ export default class CalendarComponent extends LightningElement {
                 });
                 return;
             }
-
-            const { eventName, eventDescription, eventType, location, maxAttendees } = this.newEvent;
-
-            console.log('Event being sent to Apex:', {
+    
+            const { eventName, eventDescription, eventType, location, maxAttendees, meetingLink } = this.newEvent;
+    
+            const createdEventId = await createEvent({
                 eventName,
                 eventDescription,
                 startDate: startDate.toISOString(),
                 endDate: endDate.toISOString(),
                 eventType,
                 location,
-                maxAttendees: parseInt(maxAttendees, 10)
+                maxAttendees: parseInt(maxAttendees, 10),
+                meetingLink  // Add meetingLink here
             });
-
-            // Call the Apex method to create the event
-            await createEvent({
-                eventName,
-                eventDescription,
-                startDate: startDate.toISOString(),  // Convert to ISO string for DateTime
-                endDate: endDate.toISOString(),      // Convert to ISO string for DateTime
-                eventType,
-                location,
-                maxAttendees: parseInt(maxAttendees, 10)
-            });
-
-            // Show success message and reload events
+    
+            this.newEventId = createdEventId;  // Store the event ID for RSVP submission
+    
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Success',
                     message: 'Event created successfully!',
-                    variant: 'success'
+                    variant: 'success',
                 })
             );
-
-            // Reload the page and close modal
-            window.location.reload(); // Reload to reflect changes
-            this.isCreateModalOpen = false; // Close the modal
-            this.loadEvents(); // Reload the events
+    
+            // Open RSVP modal after event creation
+            this.isCreateModalOpen = false;
+            this.isRSVPModalOpen = true;  // Open the RSVP modal to collect attendee info
+    
+            this.loadEvents(); // Reload the events without reloading the page
+    
         } catch (error) {
             console.error('Error creating event:', error);
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Error creating event',
-                    message: error.message,
-                    variant: 'error'
+                    message: error.message || 'Unknown error occurred',
+                    variant: 'error',
                 })
             );
         }
     }
+    
+    // Submit RSVP and clear the form for another entry
+async submitRSVP(addAnother = false) {
+    try {
+        if (!this.attendeeName || !this.attendeeEmail || !this.attendeePhone) {
+            throw new Error('All RSVP fields are required');
+        }
+
+        await submitRSVP({
+            eventId: this.newEventId,
+            attendeeName: this.attendeeName,
+            attendeeEmail: this.attendeeEmail,
+            attendeePhone: this.attendeePhone,
+        });
+
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Success',
+                message: 'RSVP submitted successfully!',
+                variant: 'success',
+            })
+        );
+
+        if (addAnother) {
+            // Clear the form but keep the modal open for adding another attendee
+            this.clearRSVPForm();
+        } else {
+      
+            this.closeRSVPModal();
+           
+
+        }
+
+    } catch (error) {
+        console.error('Error submitting RSVP:', error);
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error submitting RSVP',
+                message: error.message || 'Unknown error occurred',
+                variant: 'error',
+            })
+        );
+    }
+}
+
+
+    // New helper method for adding another attendee
+submitRSVPAddAnother() {
+    this.submitRSVP(true);
+}
+
+// Method to clear the RSVP form
+clearRSVPForm() {
+    this.attendeeName = '';
+    this.attendeeEmail = '';
+    this.attendeePhone = '';
+}
+
+
+
+    // Handle input changes for RSVP modal
+    handleInputChange(event) {
+        const field = event.target.name;
+        if (field === 'attendeeName') {
+            this.attendeeName = event.target.value;
+        } else if (field === 'attendeeEmail') {
+            this.attendeeEmail = event.target.value;
+        } else if (field === 'attendeePhone') {
+            this.attendeePhone = event.target.value;
+        } else {
+            this.newEvent[field] = event.target.value;
+        }
+    }
+
+// Close RSVP modal and refresh the page
+closeRSVPModal() {
+    this.isRSVPModalOpen = false;
+    this.clearRSVPForm(); // Clear the form when closing the modal
+
+    // Trigger a page reload when the modal is closed
+    window.location.reload();
+}
+
 
     getFilteredEventsForDay(date) {
         return this.filteredEvents.filter(event => {

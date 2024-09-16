@@ -36,6 +36,17 @@
                         <lightning-icon icon-name="utility:groups" alternative-text="Attendees Registered" size="small"></lightning-icon>
                         <p><strong>Attendees Registered:</strong> {attendeesCount}</p>
                     </div>
+                     <!-- New Section for Meeting Link -->
+                     <div class="detail-row">
+                        <lightning-icon icon-name="utility:link" alternative-text="Meeting Link " size="small"></lightning-icon>
+                        <p><strong>Meeting Link:</strong> <a href={meetingLink} target="_blank">{meetingLink}</a></p>
+                    </div>
+
+                     <!-- Add to Calendar Buttons -->
+            <div class="slds-m-top_medium">
+                <lightning-button label="Add to Google Calendar" onclick={addGoogleCalendar} class="slds-m-right_small"></lightning-button>
+                <lightning-button label="Add to Outlook Calendar" onclick={addOutlookCalendar}></lightning-button>
+            </div>
                 </div>
 
                 <!-- Full width for Description -->
