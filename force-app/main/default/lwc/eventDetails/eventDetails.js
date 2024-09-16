@@ -70,18 +70,39 @@ export default class EventDetails extends NavigationMixin(LightningElement) {
     get meetingLink() {
         return getFieldValue(this.event.data, MEETING_LINK_FIELD);  // Fetch meeting link
     }
+// Helper function to format date for Google Calendar (YYYYMMDDTHHmmSSZ)
+formatDateForGoogleCalendar(dateString) {
+    const date = new Date(dateString);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
 
-    // Google Calendar Link Handler
-    addGoogleCalendar() {
-        const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(this.eventName)}&dates=${this.eventStartDate}/${this.eventEndDate}&details=${encodeURIComponent(this.eventDescription)}&location=${encodeURIComponent(this.eventLocation)}&sf=true&output=xml`;
-        window.open(googleCalendarUrl, '_blank');
-    }
+    // Return in format YYYYMMDDTHHmmSSZ
+    return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+}
 
-    // Outlook Calendar Link Handler
-    addOutlookCalendar() {
-        const outlookCalendarUrl = `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&subject=${encodeURIComponent(this.eventName)}&startdt=${this.eventStartDate}&enddt=${this.eventEndDate}&body=${encodeURIComponent(this.eventDescription)}&location=${encodeURIComponent(this.eventLocation)}`;
-        window.open(outlookCalendarUrl, '_blank');
-    }
+// Google Calendar Link Handler
+addGoogleCalendar() {
+    const startDateFormatted = this.formatDateForGoogleCalendar(this.eventStartDate); 
+    const endDateFormatted = this.formatDateForGoogleCalendar(this.eventEndDate);
+
+    const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(this.eventName)}&dates=${startDateFormatted}/${endDateFormatted}&details=${encodeURIComponent(this.eventDescription)}&location=${encodeURIComponent(this.eventLocation)}&sf=true&output=xml`;
+    window.open(googleCalendarUrl, '_blank');
+}
+
+// Outlook Calendar Link Handler
+addOutlookCalendar() {
+    const startDateFormatted = new Date(this.eventStartDate).toISOString(); 
+    const endDateFormatted = new Date(this.eventEndDate).toISOString();
+
+    const outlookCalendarUrl = `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&subject=${encodeURIComponent(this.eventName)}&startdt=${startDateFormatted}&enddt=${endDateFormatted}&body=${encodeURIComponent(this.eventDescription)}&location=${encodeURIComponent(this.eventLocation)}`;
+    window.open(outlookCalendarUrl, '_blank');
+}
+
+
 
     // Wire to fetch the number of attendees
     @wire(getAttendeesForEvent, { eventId: '$recordId' })

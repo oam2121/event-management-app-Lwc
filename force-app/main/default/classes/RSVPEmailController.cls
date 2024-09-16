@@ -7,8 +7,8 @@ public with sharing class RSVPEmailController {
             String subject = 'Thank you for registering for ' + eventRecord.Event_Name__c;
 
             // Format the start and end dates for the calendar links
-            String eventStart = eventRecord.Event_Start_Date__c.format('yyyyMMdd\'T\'HHmmss\'Z\'');
-            String eventEnd = eventRecord.Event_End_Date__c.format('yyyyMMdd\'T\'HHmmss\'Z\'');
+            String eventStart = formatDateForCalendar(eventRecord.Event_Start_Date__c);
+            String eventEnd = formatDateForCalendar(eventRecord.Event_End_Date__c);
             String eventName = eventRecord.Event_Name__c;
             String eventLocation = eventRecord.Location__c;
 
@@ -84,5 +84,10 @@ public with sharing class RSVPEmailController {
             System.debug('Error sending email: ' + e.getMessage());
             throw new AuraHandledException('Error sending email: ' + e.getMessage());
         }
+    }
+
+    // Helper method to format date for Google/Outlook Calendar (in UTC format)
+    public static String formatDateForCalendar(Datetime dt) {
+        return dt.formatGmt('yyyyMMdd\'T\'HHmmss\'Z\'');
     }
 }
