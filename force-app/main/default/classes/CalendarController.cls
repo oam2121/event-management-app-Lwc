@@ -46,7 +46,7 @@ public with sharing class CalendarController {
     }
 
     @AuraEnabled
-    public static Id createEvent(String eventName, String eventDescription, Datetime startDate, Datetime endDate, String eventType, String location, Integer maxAttendees, String meetingLink) {
+    public static Id createEvent(String eventName, String eventDescription, Datetime startDate, Datetime endDate, String eventType, String location, Integer maxAttendees, String meetingLink, String recurrence) {
         // Validate: Start date should not be in the past
         if (startDate < Datetime.now()) {
             throw new AuraHandledException('The start date cannot be in the past.');
@@ -68,10 +68,18 @@ public with sharing class CalendarController {
         newEvent.Max_Attendees__c = maxAttendees;
         newEvent.Seats_Allocated__c = 0; // Initialize seats allocated
         newEvent.Meeting_Link__c = meetingLink; // Add meeting link field
+        newEvent.Recurrence__c = recurrence; // Add recurrence field
     
         insert newEvent;
+    
+        // Handle recurrence if the recurrence field is not 'None'
+        if (recurrence != 'None') {
+            EventRecurrenceService.handleEventRecurrence(new List<Event__c> { newEvent });
+        }
+    
         return newEvent.Id;
     }
+    
     
     
 }

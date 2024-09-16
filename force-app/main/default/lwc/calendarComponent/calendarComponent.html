@@ -153,6 +153,15 @@
 
     <!-- End Time Input -->
     <lightning-input name="endTime" label="End Time" type="time" class="slds-m-bottom_medium" onchange={handleInputChange}></lightning-input>
+    <lightning-combobox 
+    name="recurrence" 
+    label="Recurrence" 
+    value={newEvent.recurrence} 
+    options={recurrenceOptions} 
+    class="slds-m-bottom_medium" 
+    onchange={handleInputChange}>
+</lightning-combobox>
+
 
     <!-- Location Input -->
     <lightning-input name="location" label="Location" class="slds-m-bottom_medium" onchange={handleInputChange}></lightning-input>

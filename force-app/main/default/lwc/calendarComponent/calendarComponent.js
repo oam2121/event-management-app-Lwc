@@ -33,6 +33,13 @@ export default class CalendarComponent extends LightningElement {
         { label: 'General Meetings', value: 'General Meetings' },
         { label: 'Seminar', value: 'Seminar' }
     ];
+    @track recurrenceOptions = [
+        { label: 'None', value: 'None' },
+        { label: 'Daily', value: 'Daily' },
+        { label: 'Weekly', value: 'Weekly' },
+        { label: 'Monthly', value: 'Monthly' }
+    ];
+    
 
     draggedEvent = null; // Holds the event that is being dragged for date change
 
@@ -338,25 +345,7 @@ export default class CalendarComponent extends LightningElement {
                 return;
             }
     
-            if (startDate < new Date()) {
-                await LightningAlert.open({
-                    message: 'The start date cannot be in the past.',
-                    theme: 'error',
-                    label: 'Validation Error',
-                });
-                return;
-            }
-    
-            if (endDate < startDate) {
-                await LightningAlert.open({
-                    message: 'The end date cannot be earlier than the start date.',
-                    theme: 'error',
-                    label: 'Validation Error',
-                });
-                return;
-            }
-    
-            const { eventName, eventDescription, eventType, location, maxAttendees, meetingLink } = this.newEvent;
+            const { eventName, eventDescription, eventType, location, maxAttendees, meetingLink, recurrence } = this.newEvent;
     
             const createdEventId = await createEvent({
                 eventName,
@@ -366,7 +355,8 @@ export default class CalendarComponent extends LightningElement {
                 eventType,
                 location,
                 maxAttendees: parseInt(maxAttendees, 10),
-                meetingLink  // Add meetingLink here
+                meetingLink, 
+                recurrence  // Ensure recurrence field is passed correctly
             });
     
             this.newEventId = createdEventId;  // Store the event ID for RSVP submission
@@ -396,6 +386,7 @@ export default class CalendarComponent extends LightningElement {
             );
         }
     }
+    
     
     // Submit RSVP and clear the form for another entry
 async submitRSVP(addAnother = false) {
