@@ -139,6 +139,19 @@ export default class AttendeeList extends LightningElement {
         }
     }
 
+    handleRSVPStatusToggle(event) {
+        const attendeeId = event.target.dataset.id; // Get attendee ID
+        // Logic to toggle RSVP status
+        this.toggleRSVPStatus(attendeeId);
+    }
+    
+    handleDeleteConfirmation(event) {
+        const attendeeId = event.target.dataset.id; // Get attendee ID
+        // Logic to show delete confirmation
+        this.showDeleteConfirmation(attendeeId);
+    }
+    
+
     // Show delete confirmation dialog
     showDeleteConfirmation(attendeeId) {
         this.attendeeToDelete = attendeeId; // Store the attendee ID to delete
