@@ -12,7 +12,7 @@ public with sharing class CalendarController {
                    Location__c,
                    Meeting_Link__c
             FROM Event__c
-            WHERE Event_Start_Date__c != NULL
+            WHERE Event_Start_Date__c != NULL AND Type_of_Calendar_Event__c = 'Corporate'
         ];
     }
 

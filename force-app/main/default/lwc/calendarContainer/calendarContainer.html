@@ -1,0 +1,15 @@
+<template>
+    <!-- Call the dropdown component -->
+    <c-calendar-selector oncalendarchange={handleCalendarChange}></c-calendar-selector>
+
+    <!-- Conditional rendering of the calendar views -->
+    <template if:true={isCorporate}>
+        <!-- Corporate calendar component -->
+        <c-calendar-component></c-calendar-component>
+    </template>
+
+    <template if:true={isEvents}>
+        <!-- Events calendar component -->
+        
+    </template>
+</template>

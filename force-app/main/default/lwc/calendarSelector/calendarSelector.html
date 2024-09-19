@@ -1,0 +1,11 @@
+<template>
+    <div class="custom-dropdown">
+        <label for="calendarSelect" class="dropdown-label"></label>
+        <select id="calendarSelect" class="dropdown-select" onchange={handleCalendarChange}>
+            <option value="">--Select Calendar--</option>
+            <template for:each={calendarOptions} for:item="option">
+                <option key={option.value} value={option.value}>{option.label}</option>
+            </template>
+        </select>
+    </div>
+</template>

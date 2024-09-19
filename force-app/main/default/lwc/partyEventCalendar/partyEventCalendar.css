@@ -1,0 +1,301 @@
+/* Overall layout */
+.calendar-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #1a1a1a, #b8860b); /* Black and gold gradient */
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.calendar-header-left {
+    display: inline-flex;
+}
+
+.calendar-header-right {
+    display: inline-flex;
+    margin-right: 20px;
+}
+
+/* Button styles for view switching */
+.lightning-button-group .slds-button {
+    background-color: #b8860b; /* Gold button background */
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.lightning-button-group .slds-button:hover {
+    background-color: #c0c0c0; /* Silver on hover */
+    color: black;
+}
+
+.filter-dropdown {
+    background-color: #1a1a1a;
+    border-radius: 5px;
+    color: white;
+}
+
+/* Calendar navigation */
+.calendar-navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.month-display {
+    margin: 0 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #b8860b; /* Gold for the month name */
+    text-shadow: 2px 2px #c0c0c0; /* Silver shadow effect */
+}
+
+.nav-button {
+    background-color: #b8860b; /* Gold for navigation buttons */
+    color: white;
+    border-radius: 5px;
+    padding: 8px 16px;
+}
+
+.nav-button:hover {
+    background-color: #c0c0c0; /* Silver on hover */
+    color: black;
+}
+
+/* Grid and day layout */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 12px 0;
+    background: linear-gradient(45deg, #b8860b, #c0c0c0); /* Gold and silver gradient */
+    border-bottom: 2px solid #1a1a1a;
+    color: white;
+    border-radius: 5px;
+}
+
+.calendar-day {
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid #333;
+    background: linear-gradient(135deg, #1a1a1a, #333); /* Dark background with gradient */
+    position: relative;
+    border-radius: 10px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.calendar-day:hover {
+    background: linear-gradient(135deg, #b8860b, #c0c0c0); /* Gold and silver hover effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+.today {
+    border: 3px solid #c0c0c0; /* Silver border for today's date */
+    background-color: #333;
+}
+
+.day-number {
+    font-size: 22px;
+    font-weight: bold;
+    color: #b8860b; /* Gold for the day numbers */
+    text-shadow: 1px 1px #c0c0c0; /* Silver shadow */
+}
+
+/* Event item styles */
+.event-item {
+    margin-top: 8px;
+    background-color: #b8860b; /* Gold for events */
+    color: black;
+    padding: 6px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.event-item:hover {
+    background-color: #c0c0c0; /* Silver on hover */
+    transform: scale(1.05);
+}
+
+/* Custom Modal Header */
+.custom-modal-header {
+    background-color: #1a1a1a;
+    color: #b8860b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    font-size: 20px;
+}
+
+.custom-modal-body {
+    padding: 1rem;
+    font-size: 16px;
+    color: white;
+    background-color: #333;
+}
+
+.custom-modal-footer {
+    padding: 1rem;
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.modal-section lightning-icon {
+    margin-right: 10px;
+}
+
+.custom-close-button {
+    background-color: #b8860b; /* Gold close button */
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.custom-close-button:hover {
+    background-color: #c0c0c0; /* Silver on hover */
+}
+
+.slds-modal__container {
+    max-width: 50rem;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+}
+
+.slds-backdrop_open {
+    z-index: 8000;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Form element labels */
+/* Specifically targeting labels for lightning-input */
+.slds-form-element__label {
+    color: #b8860b !important; /* Gold label color */
+    font-weight: bold;
+}
+
+/* Ensure the input fields still match the theme */
+.lightning-input input, 
+.lightning-input-rich-text, 
+.lightning-combobox, 
+.lightning-datepicker input, 
+.lightning-timepicker input {
+    background-color: #1a1a1a; /* Dark background for inputs */
+    color: #ffffff; /* White text for input fields */
+    border: 1px solid #b8860b; /* Gold border for input fields */
+    border-radius: 5px;
+}
+
+/* Placeholder text styling */
+.lightning-input input::placeholder, 
+.lightning-input-rich-text::placeholder, 
+.lightning-combobox::placeholder, 
+.lightning-datepicker input::placeholder, 
+.lightning-timepicker input::placeholder {
+    color: #c0c0c0; /* Silver placeholder text */
+}
+
+.slds-m-bottom_medium{
+    color: #b8860b !important; /* Gold label color */
+    font-weight: bold;
+}
+
+.custom-label {
+    color: #b8860b; /* Gold color */
+    font-weight: bold;
+    display: block;  /* To ensure it displays as a block element */
+}
+
+
+/* JS Animation effects */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.event-item:hover {
+    animation: pulse 0.6s ease-in-out infinite;
+}
+
+.nav-button {
+    transition: box-shadow 0.3s;
+}
+
+.nav-button:hover {
+    box-shadow: 0px 0px 10px 5px #b8860b; /* Gold glow effect on hover */
+}
+
+.filter-dropdown lightning-combobox {
+    --slds-c-input-text-color: white; /* Sets the text color to white */
+    --slds-c-input-background-color: #333333; /* Dark background for dropdown */
+    --slds-c-input-placeholder-color: #b3b3b3; /* Light grey for placeholder text */
+    --slds-c-input-border-color: #ffd700; /* Gold border to match the theme */
+    font-size: 16px; /* Adjust font size for better readability */
+    padding: 8px;
+    border-radius: 5px;
+    margin-right: 20px; /* Shift the dropdown towards left */
+}
+
+.filter-dropdown  {
+    background-color: #b8860b; /* Gold background for the overall dropdown container */
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+    margin-right: 50px; /* Adjust to shift it left and fit the screen */
+}
+
+/* Styling for the options list */
+.slds-dropdown__list {
+    background-color: #1f1f1f; /* Dark background for dropdown options */
+    border: 1px solid #ffd700; /* Gold border to match the theme */
+    color: white; /* White text for better visibility */
+}
+
+.slds-dropdown__item {
+    padding: 10px;
+    font-size: 15px;
+    border-bottom: 1px solid #ffd700; /* Gold border between options */
+}
+
+.slds-dropdown__item:hover {
+    background-color: #333333; /* Darker grey on hover */
+    color: #ffd700; /* Gold text color on hover */
+    cursor: pointer;
+}
+
+.custom-label-color{
+    color: goldenrod; /* Gold color */
+
+}

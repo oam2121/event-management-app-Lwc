@@ -1,0 +1,25 @@
+.custom-dropdown {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem;
+}
+
+.dropdown-label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.dropdown-select {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 200px;
+    transition: border-color 0.3s ease;
+}
+
+.dropdown-select:focus {
+    border-color: #0070d2; /* Salesforce blue color for focus */
+    outline: none;
+}

@@ -104,4 +104,51 @@ public with sharing class RSVPController {
             throw new AuraHandledException('Error fetching events: ' + e.getMessage());
         }
     }
+
+    // Method to submit RSVP and send a confirmation email
+    @AuraEnabled
+    public static String submitPartyRSVP(Id eventId, String attendeeName, String attendeeEmail, String attendeePhone) {
+        // Fetch the event record, including Seats_Allocated__c and Max_Attendees__c
+        Event__c eventRecord = [SELECT Id, Event_Name__c, Event_Start_Date__c, Event_End_Date__c, Location__c, Max_Attendees__c, Seats_Allocated__c 
+                                FROM Event__c WHERE Id = :eventId LIMIT 1];
+
+        // Initialize Seats_Allocated__c to 0 if it's null
+        if (eventRecord.Seats_Allocated__c == null) {
+            eventRecord.Seats_Allocated__c = 0;
+        }
+
+        // Check if the event is full
+        if (eventRecord.Max_Attendees__c == eventRecord.Seats_Allocated__c) {
+            throw new AuraHandledException('The event is full. No more RSVPs can be accepted.');
+        }
+
+        // Check if the email has already RSVP'd for this event
+        List<Attendee__c> existingRSVPs = [SELECT Id FROM Attendee__c WHERE Event__c = :eventId AND Email__c = :attendeeEmail LIMIT 1];
+        if (!existingRSVPs.isEmpty()) {
+            throw new AuraHandledException('You have already RSVP\'d for this event.');
+        }
+
+        // Create the new Attendee__c record and set status to Registered
+        Attendee__c newAttendee = new Attendee__c();
+        newAttendee.Event__c = eventRecord.Id;
+        newAttendee.Name__c = attendeeName;
+        newAttendee.Email__c = attendeeEmail;
+        newAttendee.Phone__c = attendeePhone;
+        newAttendee.RSVP_Status__c = 'Registered';
+
+        insert newAttendee;
+
+        // Increment Seats_Allocated__c now that a new attendee is registered
+        eventRecord.Seats_Allocated__c = eventRecord.Seats_Allocated__c + 1;
+        update eventRecord;
+
+        // Send the email using the RSVPEmailController
+        RSVPEmailController.sendPartyEventEmail(eventRecord, newAttendee);
+
+        return 'RSVP successfully submitted!';
+    }
+
+
+
+    
 }
