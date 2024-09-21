@@ -4,8 +4,8 @@ import updateEventDate from '@salesforce/apex/PartyEventController.updateEventDa
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import LightningAlert from 'lightning/alert';
 import createEvent from '@salesforce/apex/PartyEventController.createEvent';
-import submitPartyRSVP from '@salesforce/apex/RSVPController.submitPartyRSVP';  // <-- Make sure this import is present
 import searchEvents from '@salesforce/apex/EventController.searchEvents'; // Fetch the filtered events by search
+import createTicket from '@salesforce/apex/TicketController.createTicket'; 
 
 export default class CalendarComponent extends LightningElement {
     // Section: Track variables for modal, events, calendar, and filtering
@@ -19,13 +19,12 @@ export default class CalendarComponent extends LightningElement {
     @track filteredEvents = []; // Stores the filtered events after a search
     @track selectedEventType = 'All'; // Tracks the selected event type for filtering
     @track selectedView = 'Monthly'; // Default view is Monthly
-    @track isRSVPModalOpen = false;
-    @track attendeeName = '';
-    @track attendeeEmail = '';
-    @track attendeePhone = '';
-    @track meetingLink
-    
     newEventId = '';  // To store the new event Id after creating it
+    @track buyerName = '';
+    @track buyerEmail = '';
+    @track quantity = 1; // Default quantity is 1
+    @track ticketType = '';
+    @track paymentStatus = '';
     @track eventTypes = [
         { label: 'All', value: 'All' },
         { label: 'Music', value: 'Music' },
@@ -34,11 +33,19 @@ export default class CalendarComponent extends LightningElement {
         { label: 'Wedding', value: 'Wedding' },
         { label: 'Birthday Parties', value: 'Birthday Parties' },
         { label: 'Festivals', value: 'Festivals' }
+    ];
+    @track ticketTypes = [
+        { label: 'Regular', value: 'Regular' },
+        { label: 'VIP', value: 'VIP' },
+        { label: 'Early Bird', value: 'Early Bird' }
+    ];
 
+    @track paymentStatuses = [
+        { label: 'Paid', value: 'Paid' },
+        { label: 'Unpaid', value: 'Unpaid' },
+        { label: 'Failed', value: 'Failed' }
     ];
    
-    
-
     draggedEvent = null; // Holds the event that is being dragged for date change
 
     currentMonth = new Date().getMonth(); // Tracks the current month for the calendar
@@ -55,8 +62,6 @@ export default class CalendarComponent extends LightningElement {
         default: 'background: linear-gradient(135deg, #667db6, #0082c8, #667db6); color: white;'  // Cool blue gradient for default
     };
     
-    
-
     // Lifecycle hook: Runs when the component is inserted into the DOM
     connectedCallback() {
         this.loadEvents();
@@ -67,7 +72,6 @@ export default class CalendarComponent extends LightningElement {
         return `calendar-day ${day.isToday ? 'today' : ''}`;
     }
     
-
     async loadEvents() {
         try {
             const data = await getEvents();
@@ -90,7 +94,6 @@ export default class CalendarComponent extends LightningElement {
         }
     }
     
-
     generateCalendar() {
         if (this.selectedView === 'Daily') {
             this.generateDailyView();
@@ -101,7 +104,6 @@ export default class CalendarComponent extends LightningElement {
         }
     }
     
-
     // Section: Daily view generation
     generateDailyView() {
         const currentDate = new Date(this.currentYear, this.currentMonth, this.currentDay);
@@ -133,6 +135,7 @@ export default class CalendarComponent extends LightningElement {
 
         this.calendarDays = daysArray;
     }
+    
     generateMonthlyView(currentDate) {
         const currentMonth = currentDate.getMonth();
         const currentYear = currentDate.getFullYear();
@@ -170,7 +173,6 @@ export default class CalendarComponent extends LightningElement {
     
         this.calendarDays = daysArray;
     }
-    
 
     // Section: Retrieve events for a specific day based on filtered results
     getFilteredEventsForDay(date) {
@@ -188,11 +190,11 @@ export default class CalendarComponent extends LightningElement {
         this.selectedEventType = event.detail.value;
         this.applySearchAndFilter(); // Apply filtering when event type is changed
     }
+
     handleSearch() {
         // Apply search logic directly
         this.applySearchAndFilter();
     }
-    
     
     async handleSearchResults(event) {
         const searchEventName = event.detail.eventName.toLowerCase();
@@ -223,7 +225,6 @@ export default class CalendarComponent extends LightningElement {
         }
     }
     
-
     // Section: Check if two dates are the same
     isSameDay(date1, date2) {
         return date1.getDate() === date2.getDate() &&
@@ -282,14 +283,11 @@ export default class CalendarComponent extends LightningElement {
         this.isCreateModalOpen = true;
     }
 
-
     handleSearchInput(event) {
         this.searchInputValue = event.target.value.trim().toLowerCase();
         this.applySearchAndFilter();
     }
     
-    
-
     applySearchAndFilter() {
         let filtered = this.events;
     
@@ -386,8 +384,9 @@ export default class CalendarComponent extends LightningElement {
             // Close the event creation modal
             this.isCreateModalOpen = false;
     
-            // Open the RSVP modal after creating the event
-            this.isRSVPModalOpen = true; // This will trigger the RSVP modal to open
+            // Open the ticket booking modal after event creation
+            this.selectedEvent = { id: createdEventId, name: eventName }; // Set the newly created event details
+            this.isTicketModalOpen = true; // Set the ticket booking modal flag to true
     
         } catch (error) {
             console.error('Error creating event:', error);
@@ -403,100 +402,13 @@ export default class CalendarComponent extends LightningElement {
         }
     }
     
-    // Submit RSVP and clear the form for another entry
-async submitPartyRSVP(addAnother = false) {
-    try {
-        if (!this.attendeeName || !this.attendeeEmail || !this.attendeePhone) {
-            throw new Error('All RSVP fields are required');
-        }
 
-        await submitPartyRSVP({
-            eventId: this.newEventId,
-            attendeeName: this.attendeeName,
-            attendeeEmail: this.attendeeEmail,
-            attendeePhone: this.attendeePhone,
-        });
-
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: 'Success',
-                message: 'RSVP submitted successfully!',
-                variant: 'success',
-            })
-        );
-
-        if (addAnother) {
-            // Clear the form but keep the modal open for adding another attendee
-            this.clearRSVPForm();
-        } else {
-      
-            this.closeRSVPModal();
-           
-
-        }
-
-    } catch (error) {
-        console.error('Error submitting RSVP:', error);
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: 'Error submitting RSVP',
-                message: error.message || 'Unknown error occurred',
-                variant: 'error',
-            })
-        );
-    }
-}
-
-
-    // New helper method for adding another attendee
-submitRSVPAddAnother() {
-    this.submitPartyRSVP(true);
-}
-
-// Method to clear the RSVP form
-clearRSVPForm() {
-    this.attendeeName = '';
-    this.attendeeEmail = '';
-    this.attendeePhone = '';
-}
-
-
-
-   // Updated: Handle input changes for all form fields including price
-handleInputChange(event) {
-    const field = event.target.name;
-    if (field === 'attendeeName') {
-        this.attendeeName = event.target.value;
-    } else if (field === 'attendeeEmail') {
-        this.attendeeEmail = event.target.value;
-    } else if (field === 'attendeePhone') {
-        this.attendeePhone = event.target.value;
-    } else {
+    // Updated: Handle input changes for all form fields including price
+    handleInputChange(event) {
+        const field = event.target.name;
         this.newEvent[field] = event.target.value; // Handles fields like eventName, description, price, etc.
     }
-}
 
-// Close RSVP modal and refresh the page
-closeRSVPModal() {
-    this.isRSVPModalOpen = false;
-    this.clearRSVPForm(); // Clear the form when closing the modal
-
-    // Trigger a page reload when the modal is closed
-    window.location.reload();
-}
-
-
-    getFilteredEventsForDay(date) {
-        return this.filteredEvents.filter(event => {
-            const eventDate = new Date(event.startDate);
-            return (
-                eventDate.getDate() === date.getDate() &&
-                eventDate.getMonth() === date.getMonth() &&
-                eventDate.getFullYear() === date.getFullYear()
-            );
-        });
-    }
-    
     // Section: Close the modals
     closeModal() {
         this.isModalOpen = false;
@@ -553,4 +465,106 @@ closeRSVPModal() {
         this.selectedView = event.target.dataset.view;
         this.generateCalendar();  // Re-generate the calendar for the new view
     }
+
+   
+
+     // Section: Handle Input Change for Ticket Booking
+     handleInputTicketChange(event) {
+        const field = event.target.name;
+        if (field === 'buyerName') {
+            this.buyerName = event.target.value;
+        } else if (field === 'buyerEmail') {
+            this.buyerEmail = event.target.value;
+        } else if (field === 'quantity') {
+            this.quantity = event.target.value;
+        } else if (field === 'ticketType') {
+            this.ticketType = event.target.value;
+        } else if (field === 'paymentStatus') {
+            this.paymentStatus = event.target.value;
+        }
+    }
+
+    async saveTicket() {
+        try {
+            if (!this.buyerName || !this.buyerEmail || !this.quantity || !this.ticketType || !this.paymentStatus) {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'Please fill in all required fields.',
+                        variant: 'error',
+                    })
+                );
+                return; // Exit if any field is missing
+            }
+    
+            const parsedQuantity = parseInt(this.quantity, 10);
+            if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'Quantity must be a valid positive integer.',
+                        variant: 'error',
+                    })
+                );
+                return; // Exit if quantity is invalid
+            }
+    
+            const purchaseDate = new Date();
+    
+            // Call the Apex method to create the ticket
+            await createTicket({
+                buyerName: this.buyerName,
+                buyerEmail: this.buyerEmail,
+                eventId: this.selectedEvent.id,  // Ensure eventId is passed correctly
+                quantity: parsedQuantity,
+                ticketType: this.ticketType,
+                paymentStatus: this.paymentStatus,
+                purchaseDate: purchaseDate
+            });
+    
+            // Success notification
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Success',
+                    message: 'Tickets booked successfully!',
+                    variant: 'success',
+                })
+            );
+            
+            this.clearFormFields();
+    
+        } catch (error) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: error.body.message || 'Error booking tickets.',
+                    variant: 'error',
+                })
+            );
+            console.error('Error booking tickets:', error);
+        }
+    }
+    
+    // Function to clear the form fields
+    clearFormFields() {
+        this.buyerName = '';
+        this.buyerEmail = '';
+        this.quantity = '';
+        this.ticketType = '';
+        this.paymentStatus = '';
+    }
+
+    // Section: Open and Close Ticket Modal
+openTicketBookingModal() {
+    this.isTicketModalOpen = true;
+}
+
+closeTicketModal() {
+    this.isTicketModalOpen = false; // Close the modal
+    window.location.reload(); // Refresh the page
+}
+
+    
+    
+    
 }

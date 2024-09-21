@@ -92,20 +92,21 @@ public with sharing class RSVPEmailController {
     }
 
 
-    // Method to send a party-themed HTML email with an event poster and details
-public static void sendPartyEventEmail(Event__c eventRecord, Attendee__c attendee) {
+  // Method to send a party-themed HTML email with event details and ticket information
+public static void sendPartyEventEmail(Event__c eventRecord, Ticket__c ticket) {
     try {
         // Use the provided external URL for the party poster
         String posterUrl = 'https://i.ibb.co/2qq3b2n/DALL-E-2024-09-18-22-39-06-A-vibrant-party-themed-email-template-poster-with-bright-colors-fun-eleme.webp'; 
 
         // Create the email subject
-        String subject = 'You are invited to ' + eventRecord.Event_Name__c;
+        String subject = 'You are invited to ' + eventRecord.Event_Name__c + ' - Your Ticket';
 
         // Format the start and end dates for the calendar links
         String eventStart = formatDateForCalendar(eventRecord.Event_Start_Date__c);
         String eventEnd = formatDateForCalendar(eventRecord.Event_End_Date__c);
         String eventName = eventRecord.Event_Name__c;
         String eventLocation = eventRecord.Location__c;
+    
 
         // Generate the Google Calendar link
         String googleCalendarLink = 'https://www.google.com/calendar/render?action=TEMPLATE&text=' + 
@@ -139,6 +140,7 @@ public static void sendPartyEventEmail(Event__c eventRecord, Attendee__c attende
                       '        .event-description { font-size: 16px; margin-bottom: 20px; }' +
                       '        .event-details { font-size: 14px; text-align: left; }' +
                       '        .event-details ul { list-style: none; padding: 0; }' +
+                      '        .ticket-details { font-size: 16px; color: #ff4500; margin-top: 20px; }' +
                       '        .calendar-buttons { text-align: center; margin-top: 20px; }' +
                       '        .button { display: inline-block; background-color: #ff4500; color: white; padding: 10px 20px; text-decoration: none; margin: 5px; border-radius: 5px; }' +
                       '        .footer-message { font-size: 16px; color: #ff4500; text-align: center; margin-top: 20px; }' +
@@ -152,7 +154,7 @@ public static void sendPartyEventEmail(Event__c eventRecord, Attendee__c attende
                       '        </div>' +
                       '        <div class="email-content">' +
                       '            <h1 class="event-title">You are invited to ' + eventRecord.Event_Name__c + '!</h1>' +
-                      '            <p class="attendee-greeting">Hello ' + attendee.Name__c + ',</p>' +
+                      '            <p class="attendee-greeting">Hello ' + ticket.Buyer_Name__c + ',</p>' + // Use ticket details for greeting
                       '            <p class="event-description">We are thrilled to have you join us at <strong>' + eventRecord.Location__c + '</strong> for an amazing party!</p>' +
                       '            <div class="event-details">' +
                       '                <ul>' +
@@ -160,6 +162,12 @@ public static void sendPartyEventEmail(Event__c eventRecord, Attendee__c attende
                       '                    <li><strong>End Date:</strong> ' + eventRecord.Event_End_Date__c + '</li>' +
                       '                    <li><strong>Location:</strong> ' + eventRecord.Location__c + '</li>' +
                       '                </ul>' +
+                      '            </div>' +
+                      '            <div class="ticket-details">' +
+                      '                <h2>Your Ticket Details:</h2>' +
+                      '                <p><strong>Ticket Type:</strong> ' + ticket.Ticket_Type__c + '</p>' +
+                      '                <p><strong>Quantity:</strong> ' + ticket.Quantity__c + '</p>' +
+                      '                <p><strong>Payment Status:</strong> ' + ticket.Payment_Status__c + '</p>' +
                       '            </div>' +
                       '            <div class="calendar-buttons">' +
                       '                <a href="' + googleCalendarLink + '" class="button">Add to Google Calendar</a>' +
@@ -176,7 +184,7 @@ public static void sendPartyEventEmail(Event__c eventRecord, Attendee__c attende
 
         // Create a single email message
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-        email.setToAddresses(new String[] { attendee.Email__c });
+        email.setToAddresses(new String[] { ticket.Buyer_Email__c }); // Use ticket's buyer email
         email.setSubject(subject);
         email.setHtmlBody(body); // Use the HTML body
 
@@ -188,6 +196,7 @@ public static void sendPartyEventEmail(Event__c eventRecord, Attendee__c attende
         throw new AuraHandledException('Error sending email: ' + e.getMessage());
     }
 }
+
 
 
 

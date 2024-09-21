@@ -1,0 +1,37 @@
+<template>
+    <lightning-card title="Create Ticket" icon-name="action:new_event">
+        <div class="slds-p-around_medium">
+            <!-- Buyer Name -->
+            <lightning-input label="Buyer Name" data-id="buyerName" required></lightning-input>
+
+            <!-- Buyer Email -->
+            <lightning-input label="Buyer Email" type="email" data-id="buyerEmail" required></lightning-input>
+
+            <!-- Quantity -->
+            <lightning-input label="Quantity" type="number" data-id="quantity" required></lightning-input>
+
+            <!-- Ticket Type -->
+            <lightning-combobox
+                label="Ticket Type"
+                data-id="ticketType"
+                value={ticketType}
+                placeholder="Select Ticket Type"
+                options={ticketTypeOptions}>
+            </lightning-combobox>
+
+            <!-- Payment Status -->
+            <lightning-combobox
+                label="Payment Status"
+                data-id="paymentStatus"
+                value={paymentStatus}
+                placeholder="Select Payment Status"
+                options={paymentStatusOptions}>
+            </lightning-combobox>
+
+        </div>
+
+        <footer class="slds-modal__footer">
+            <lightning-button label="Submit" variant="brand" onclick={handleSubmitTicket}></lightning-button>
+        </footer>
+    </lightning-card>
+</template>

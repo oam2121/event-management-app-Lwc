@@ -1,0 +1,28 @@
+.slds-modal__content {
+    background-color: #f4f6f9; /* Light background for better contrast */
+}
+
+.custom-label {
+    color: #000; /* Black color for labels */
+    font-weight: bold;
+}
+
+.slds-input {
+    color: #000; /* Black color for input text */
+    background-color: #ffffff; /* White background for input fields */
+    border: 1px solid #d8dde6; /* Light border for input fields */
+}
+
+.slds-combobox__form-element {
+    background-color: #ffffff; /* White background for combobox */
+    border: 1px solid #d8dde6; /* Light border for combobox */
+    color: #000; /* Black color for combobox text */
+}
+
+.slds-combobox__input {
+    color: #000; /* Black color for combobox input */
+}
+
+.slds-m-bottom_medium {
+    margin-bottom: 1rem;
+}

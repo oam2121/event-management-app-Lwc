@@ -48,7 +48,7 @@ public with sharing class PartyEventController {
 
     
     @AuraEnabled
-    public static Id createEvent(String eventName, String eventDescription, Datetime startDate, Datetime endDate, String eventType, String location, Integer maxAttendees, Decimal price) {
+    public static Id createEvent(String eventName, String eventDescription, Datetime startDate, Datetime endDate, String eventType, String location, Integer maxAttendees, Decimal price, String calendarEventType) {
         try {
             // Validate mandatory fields
             if (String.isBlank(eventName)) {
@@ -67,7 +67,8 @@ public with sharing class PartyEventController {
                 Event_Type__c = eventType,
                 Location__c = location,
                 Max_Attendees__c = maxAttendees,
-                Price__c = price
+                Price__c = price,
+                Type_of_Calendar_Event__c = calendarEventType
             );
             
             // Insert the Event record
@@ -81,4 +82,6 @@ public with sharing class PartyEventController {
             throw new AuraHandledException(ex.getMessage());
         }
     }
+
+    
 }
