@@ -12,15 +12,16 @@ export default class AttendeeList extends LightningElement {
     @track error = '';
     @track isLoading = true;
     @track wiredAttendeesResult;
-    @track isModalOpen = false; // To control modal visibility
-    @track isDeleteDialogOpen = false; // To control delete confirmation dialog
-    @track attendeeToDelete = null; // To store the attendee to delete
+    @track isModalOpen = false; // Controls modal visibility for adding attendee
+    @track isDeleteDialogOpen = false; // Controls delete confirmation dialog
+    @track attendeeToDelete = null; // Stores the attendee to delete
 
     // Attendee fields for the modal
     @track newAttendeeName = '';
     @track newAttendeeEmail = '';
     @track newAttendeePhone = '';
 
+    // Column definition for the data table
     columns = [
         { label: 'Name', fieldName: 'Name__c', type: 'text' },
         { label: 'Email', fieldName: 'Email__c', type: 'email' },
@@ -31,7 +32,7 @@ export default class AttendeeList extends LightningElement {
             typeAttributes: {
                 label: { fieldName: 'rsvpActionLabel' }, 
                 name: 'toggleRSVPStatus',
-                variant: { fieldName: 'rsvpVariant' } 
+                variant: { fieldName: 'rsvpVariant' }
             },
         },
         {
@@ -44,6 +45,7 @@ export default class AttendeeList extends LightningElement {
         }
     ];
 
+    // Fetch attendees for the event and transform data for table actions
     @wire(getAttendeesForEvent, { eventId: '$recordId' })
     wiredAttendees(result) {
         this.wiredAttendeesResult = result;
@@ -51,13 +53,12 @@ export default class AttendeeList extends LightningElement {
         this.isLoading = false;
 
         if (data) {
-            this.attendees = data.map(att => {
-                return {
-                    ...att,
-                    rsvpActionLabel: att.RSVP_Status__c === 'Cancelled' ? 'Re-add RSVP' : 'Cancel RSVP',
-                    rsvpVariant: att.RSVP_Status__c === 'Cancelled' ? 'success' : 'destructive' 
-                };
-            });
+            // Transform data to add dynamic button labels and variants
+            this.attendees = data.map(att => ({
+                ...att,
+                rsvpActionLabel: att.RSVP_Status__c === 'Cancelled' ? 'Re-add RSVP' : 'Cancel RSVP',
+                rsvpVariant: att.RSVP_Status__c === 'Cancelled' ? 'success' : 'destructive' 
+            }));
             this.error = undefined;
         } else if (error) {
             this.attendees = [];
@@ -75,7 +76,7 @@ export default class AttendeeList extends LightningElement {
         this.isModalOpen = false;
     }
 
-    // Handle input change in modal
+    // Handle input changes in the modal (name, email, phone)
     handleInputChange(event) {
         const field = event.target.dataset.id;
         if (field === 'name') {
@@ -87,7 +88,7 @@ export default class AttendeeList extends LightningElement {
         }
     }
 
-    // Submit the new attendee
+    // Submit the new attendee and refresh the list
     async submitAttendee() {
         if (this.newAttendeeName && this.newAttendeeEmail && this.newAttendeePhone) {
             this.isLoading = true;
@@ -99,31 +100,18 @@ export default class AttendeeList extends LightningElement {
                     attendeePhone: this.newAttendeePhone
                 });
 
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Success',
-                        message: 'Attendee added successfully.',
-                        variant: 'success',
-                    })
-                );
+                this.showToast('Success', 'Attendee added successfully.', 'success');
 
                 // Close the modal and refresh the list
                 this.closeModal();
                 await refreshApex(this.wiredAttendeesResult);
-
             } catch (error) {
                 this.handleError(error);
             } finally {
                 this.isLoading = false;
             }
         } else {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Error',
-                    message: 'Please fill in all fields before submitting.',
-                    variant: 'error',
-                })
-            );
+            this.showToast('Error', 'Please fill in all fields before submitting.', 'error');
         }
     }
 
@@ -139,18 +127,19 @@ export default class AttendeeList extends LightningElement {
         }
     }
 
-    handleRSVPStatusToggle(event) {
-        const attendeeId = event.target.dataset.id; // Get attendee ID
-        // Logic to toggle RSVP status
-        this.toggleRSVPStatus(attendeeId);
+    // Toggle RSVP status (Cancel/Registered)
+    async toggleRSVPStatus(attendeeId) {
+        this.isLoading = true;
+        try {
+            await toggleRSVPStatus({ attendeeId });
+            this.showToast('Success', 'RSVP status updated.', 'success');
+            await refreshApex(this.wiredAttendeesResult);
+        } catch (error) {
+            this.handleError(error);
+        } finally {
+            this.isLoading = false;
+        }
     }
-    
-    handleDeleteConfirmation(event) {
-        const attendeeId = event.target.dataset.id; // Get attendee ID
-        // Logic to show delete confirmation
-        this.showDeleteConfirmation(attendeeId);
-    }
-    
 
     // Show delete confirmation dialog
     showDeleteConfirmation(attendeeId) {
@@ -164,19 +153,12 @@ export default class AttendeeList extends LightningElement {
         this.attendeeToDelete = null; // Clear the stored attendee ID
     }
 
-    // Confirm delete attendee
+    // Confirm and delete the attendee
     async confirmDeleteAttendee() {
         this.isLoading = true;
         try {
             await deleteRSVP({ attendeeId: this.attendeeToDelete });
-
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Success',
-                    message: 'RSVP deleted.',
-                    variant: 'success',
-                })
-            );
+            this.showToast('Success', 'RSVP deleted.', 'success');
             this.closeDeleteConfirmation(); // Close the modal
             await refreshApex(this.wiredAttendeesResult);
         } catch (error) {
@@ -186,40 +168,21 @@ export default class AttendeeList extends LightningElement {
         }
     }
 
-    // Toggle RSVP status (Cancel/Registered)
-    async toggleRSVPStatus(attendeeId) {
-        this.isLoading = true;
-        try {
-            await toggleRSVPStatus({ attendeeId });
-
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Success',
-                    message: 'RSVP status updated.',
-                    variant: 'success',
-                })
-            );
-            await refreshApex(this.wiredAttendeesResult);
-        } catch (error) {
-            this.handleError(error);
-        } finally {
-            this.isLoading = false;
-        }
+    // Show a toast message
+    showToast(title, message, variant) {
+        this.dispatchEvent(new ShowToastEvent({
+            title,
+            message,
+            variant,
+        }));
     }
 
+    // Handle errors and show an error toast
     handleError(error) {
         let errorMessage = 'Unknown error occurred';
         if (error && error.body && error.body.message) {
             errorMessage = error.body.message;
         }
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: 'Error',
-                message: errorMessage,
-                variant: 'error',
-            })
-        );
+        this.showToast('Error', errorMessage, 'error');
     }
 }
-
-       

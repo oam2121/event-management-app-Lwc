@@ -1,9 +1,10 @@
 <template>
     <lightning-card title="Attendee List" icon-name="action:approval">
-       <!-- Add Attendee Button -->
-<div class="slds-m-bottom_medium slds-float_right slds-p-right_medium">
-    <button class="custom-btn-add-attendee" onclick={openModal}>Add Attendee</button>
-</div>
+        
+        <!-- Add Attendee Button -->
+        <div class="slds-m-bottom_medium slds-float_right slds-p-right_medium">
+            <button class="custom-btn-add-attendee" onclick={openModal}>Add Attendee</button>
+        </div>
 
         <!-- Attendees Data Table -->
         <div class="slds-box slds-theme_default slds-p-around_small">
@@ -27,19 +28,21 @@
                                 <td>{attendee.RSVP_Status__c}</td>
                                 <td>
                                     <!-- Cancel/Toggle RSVP Button -->
-                                    <lightning-button label={attendee.rsvpActionLabel}
-                                                      variant={attendee.rsvpActionVariant}
-                                                      data-id={attendee.Id}
-                                                      class="button-spacing"
-                                                      onclick={handleRSVPStatusToggle}>
+                                    <lightning-button 
+                                        label={attendee.rsvpActionLabel}
+                                        variant={attendee.rsvpActionVariant}
+                                        data-id={attendee.Id}
+                                        class="button-spacing"
+                                        onclick={handleRSVPStatusToggle}>
                                     </lightning-button>
                                     
                                     <!-- Delete RSVP Button -->
-                                    <lightning-button label="Delete RSVP"
-                                                      variant="destructive"
-                                                      data-id={attendee.Id}
-                                                      class="button-spacing"
-                                                      onclick={handleDeleteConfirmation}>
+                                    <lightning-button 
+                                        label="Delete RSVP"
+                                        variant="destructive"
+                                        data-id={attendee.Id}
+                                        class="button-spacing"
+                                        onclick={handleDeleteConfirmation}>
                                     </lightning-button>
                                 </td>
                             </tr>
@@ -70,7 +73,7 @@
             </div>
         </template>
 
-        <!-- Modal for adding new attendee -->
+        <!-- Modal for Adding New Attendee -->
         <template if:true={isModalOpen}>
             <div class="modal-overlay">
                 <div class="modal">
@@ -79,14 +82,14 @@
                         <button class="modal-close" onclick={closeModal}>X</button>
                     </div>
                     <div class="modal-body">
-                        <label>Attendee Name:</label>
-                        <input type="text" value={newAttendeeName} onchange={handleInputChange} data-id="name" />
+                        <label for="attendeeName">Attendee Name:</label>
+                        <input id="attendeeName" type="text" value={newAttendeeName} onchange={handleInputChange} data-id="name" />
                         
-                        <label>Attendee Email:</label>
-                        <input type="email" value={newAttendeeEmail} onchange={handleInputChange} data-id="email" />
+                        <label for="attendeeEmail">Attendee Email:</label>
+                        <input id="attendeeEmail" type="email" value={newAttendeeEmail} onchange={handleInputChange} data-id="email" />
                         
-                        <label>Attendee Phone:</label>
-                        <input type="tel" value={newAttendeePhone} onchange={handleInputChange} data-id="phone" />
+                        <label for="attendeePhone">Attendee Phone:</label>
+                        <input id="attendeePhone" type="tel" value={newAttendeePhone} onchange={handleInputChange} data-id="phone" />
                     </div>
                     <div class="modal-footer">
                         <button class="custom-btn" onclick={submitAttendee}>Save</button>
@@ -96,7 +99,7 @@
             </div>
         </template>
 
-        <!-- Confirmation Modal for deleting attendee -->
+        <!-- Confirmation Modal for Deleting Attendee -->
         <template if:true={isDeleteDialogOpen}>
             <div class="modal-overlay">
                 <div class="modal">
@@ -106,7 +109,7 @@
                     </div>
                     <div class="modal-body">
                         <p>Are you sure you want to delete this attendee?<br />
-                        This action cannot be undone.</p>
+                           This action cannot be undone.</p>
                     </div>
                     <div class="modal-footer">
                         <button class="custom-btn" onclick={closeDeleteConfirmation}>Cancel</button>

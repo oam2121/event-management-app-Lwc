@@ -1,4 +1,4 @@
-/* Overall layout */
+/* Calendar Header Layout */
 .calendar-header-container {
     display: flex;
     justify-content: space-between;
@@ -6,16 +6,15 @@
     padding: 10px 20px;
 }
 
-.calendar-header-left {
+.calendar-header-left, .calendar-header-right {
     display: inline-flex;
 }
 
 .calendar-header-right {
-    display: inline-flex;
     margin-right: 20px;
 }
 
-/* Calendar navigation */
+/* Calendar Navigation Buttons */
 .calendar-navigation {
     display: flex;
     justify-content: center;
@@ -35,13 +34,14 @@
     color: white;
     border-radius: 5px;
     padding: 8px 16px;
+    transition: background-color 0.3s;
 }
 
 .nav-button:hover {
     background-color: #005bb5;
 }
 
-/* Grid and day layout */
+/* Calendar Grid and Day Layout */
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -73,16 +73,20 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.highlight-today {
+/* Highlight for Today's Date */
+.highlight-today, .today {
     border: 2px solid #0070d2;
+    background-color: #c9c8c8;
 }
 
+/* Day Number Styling */
 .day-number {
     font-size: 18px;
     font-weight: bold;
     color: #0070d2;
 }
 
+/* Event Item Styles */
 .event-item {
     margin-top: 8px;
     background-color: #0070d2;
@@ -92,13 +96,14 @@
     cursor: pointer;
     text-align: center;
     font-size: 14px;
-    transition: all 0.3s;
+    transition: background-color 0.3s;
 }
 
 .event-item:hover {
     background-color: #005bb5;
 }
 
+/* Filter Dropdown */
 .filter-container {
     text-align: right;
     margin-bottom: 20px;
@@ -112,6 +117,8 @@
     font-size: 14px;
     padding: 4px;
 }
+
+/* Modal Styling */
 .custom-modal-header {
     background-color: #0070d2;
     color: white;
@@ -144,17 +151,20 @@
     margin-right: 10px;
 }
 
+/* Modal Close Button */
 .custom-close-button {
     background-color: #f27575;
     color: white;
     border-radius: 5px;
     font-size: 14px;
+    transition: background-color 0.3s;
 }
 
 .custom-close-button:hover {
     background-color: #d9534f;
 }
 
+/* Modal Container */
 .slds-modal__container {
     max-width: 50rem;
     width: 100%;
@@ -162,176 +172,12 @@
     overflow: hidden;
 }
 
-.slds-backdrop_open {
-    z-index: 8000;
-}/* Overall layout */
-.calendar-header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-}
-
-.calendar-header-left {
-    display: inline-flex;
-}
-
-.calendar-header-right {
-    display: inline-flex;
-    margin-right: 20px;
-}
-
-/* Calendar navigation */
-.calendar-navigation {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.month-display {
-    margin: 0 20px;
-    font-size: 20px;
-    font-weight: bold;
-    color: #0070d2;
-}
-
-.nav-button {
-    background-color: #0070d2;
-    color: white;
-    border-radius: 5px;
-    padding: 8px 16px;
-}
-
-.nav-button:hover {
-    background-color: #005bb5;
-}
-
-/* Grid and day layout */
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-top: 20px;
-}
-
-.calendar-day-header {
-    text-align: center;
-    font-weight: bold;
-    padding: 12px 0;
-    background-color: #f0f0f0;
-    border-bottom: 2px solid #ddd;
-    color: #333;
-}
-
-.calendar-day {
-    min-height: 100px;
-    padding: 12px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    position: relative;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.calendar-day:hover {
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.highlight-today {
-    border: 2px solid #0070d2;
-}
-
-.day-number {
-    font-size: 18px;
-    font-weight: bold;
-    color: #0070d2;
-}
-
-.event-item {
-    margin-top: 8px;
-    background-color: #0070d2;
-    color: white;
-    padding: 6px;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    font-size: 14px;
-    transition: all 0.3s;
-}
-
-.event-item:hover {
-    background-color: #005bb5;
-}
-
-.filter-container {
-    text-align: right;
-    margin-bottom: 20px;
-}
-
-.filter-dropdown {
-    width: 250px;
-}
-
-.lightning-combobox {
-    font-size: 14px;
-    padding: 4px;
-}
-.custom-modal-header {
-    background-color: #0070d2;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-}
-
-.custom-modal-body {
-    padding: 1rem;
-    font-size: 16px;
-    color: #333;
-}
-
-.custom-modal-footer {
-    padding: 1rem;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.modal-section {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.modal-section lightning-icon {
-    margin-right: 10px;
-}
-
-.custom-close-button {
-    background-color: #f27575;
-    color: white;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.custom-close-button:hover {
-    background-color: #d9534f;
-}
-
-.slds-modal__container {
-    max-width: 50rem;
-    width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
+/* Modal Backdrop */
 .slds-backdrop_open {
     z-index: 8000;
 }
 
+/* Today Highlight */
 .today {
     border: 2px solid rgb(8, 20, 244);
     background-color: #c9c8c8;
