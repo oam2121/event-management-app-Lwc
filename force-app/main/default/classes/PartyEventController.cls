@@ -83,5 +83,36 @@ public with sharing class PartyEventController {
         }
     }
 
+    @AuraEnabled(cacheable=true)
+    public static List<Event__c> getPartyEvents() {
+        return [SELECT Id, Event_Name__c, Event_Type__c, Event_Start_Date__c, Event_End_Date__c, Location__c, Price__c 
+                FROM Event__c WHERE Type_of_Calendar_Event__c = 'Party Event'];
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static Event__c getEventDetails(Id eventId) {
+        return [SELECT Id, Event_Name__c, Event_Type__c, Event_Start_Date__c, Event_End_Date__c, Location__c, Price__c 
+                FROM Event__c WHERE Id = :eventId LIMIT 1];
+    }
+
+    @AuraEnabled
+    public static void deleteEvent(Id eventId) {
+        try {
+            Event__c eventToDelete = [SELECT Id FROM Event__c WHERE Id = :eventId LIMIT 1];
+            delete eventToDelete; // Perform the delete operation
+        } catch (DmlException e) {
+            throw new AuraHandledException('Error deleting event: ' + e.getMessage());
+        }
+    }
+
+    @AuraEnabled(cacheable=true)
+public static String getSeatingStatus(Id eventId) {
+    Event__c event = [SELECT Seats_Allocated__c, Max_Attendees__c FROM Event__c WHERE Id = :eventId];
+    if (event != null) {
+        return (event.Seats_Allocated__c >= event.Max_Attendees__c) ? 'Housefull' : 'Available: ' + (event.Max_Attendees__c - event.Seats_Allocated__c);
+    }
+    return 'No data';
+}
+
     
 }

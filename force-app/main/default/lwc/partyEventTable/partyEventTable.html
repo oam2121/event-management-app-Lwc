@@ -1,0 +1,169 @@
+<template>
+    <div class="main-container">
+        <h2 class="section-title">Party Events</h2>
+        
+        <!-- Conditional rendering for events -->
+        <template if:true={events.length}>
+            <div class="table-container">
+                <lightning-datatable
+                    key-field="Id"
+                    data={events}
+                    columns={columns}
+                    hide-checkbox-column="true"
+                    onrowaction={handleRowAction}
+                >
+                </lightning-datatable>
+            </div>
+        </template>
+
+        <!-- Show message if no events are found -->
+        <template if:false={events.length}>
+            <p>No events available at the moment.</p>
+        </template>
+    </div>
+
+    <!-- Event Details Custom Modal -->
+    <template if:true={isModalOpen}>
+        <c-event-party-details-modal 
+            event-id={selectedEventId} 
+            onclose={closeModal}>
+        </c-event-party-details-modal>
+    </template>
+
+    <!-- Ticket Booking Modal -->
+    <template if:true={isTicketModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeTicketModal}>
+                        <lightning-icon icon-name="utility:close" size="small" alternative-text="Close"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Book Tickets</h2>
+                    <div class={statusClass}>
+                        {seatingStatus}
+                    </div>
+                    <lightning-progress-bar value={progressPercentage} size="large" variant="base"></lightning-progress-bar>
+                    <p>Progress: {progressPercentage}%</p>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" style="height: auto;">
+                    <lightning-input label="Buyer Name" value={buyerName} onchange={handleInputChange} data-id="buyerName" disabled={isBookingDisabled}></lightning-input>
+                    <lightning-input label="Buyer Email" type="email" value={buyerEmail} onchange={handleInputChange} data-id="buyerEmail" disabled={isBookingDisabled}></lightning-input>
+                    <lightning-input label="Quantity" type="number" value={quantity} min="1" onchange={handleInputChange} data-id="quantity" disabled={isBookingDisabled}></lightning-input>
+                    <lightning-combobox label="Ticket Type" value={ticketType} options={ticketTypes} onchange={handleInputChange} data-id="ticketType" disabled={isBookingDisabled}></lightning-combobox>
+                    <lightning-combobox label="Payment Status" value={paymentStatus} options={paymentStatuses} onchange={handleInputChange} data-id="paymentStatus" disabled={isBookingDisabled}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Close" onclick={closeTicketModal}></lightning-button>
+                    <lightning-button variant="neutral" label="Add Another Ticket" onclick={resetFormForAnotherTicket} disabled={isBookingDisabled}></lightning-button>
+                    <lightning-button variant="brand" label="Book Now" onclick={bookTickets} class="slds-m-left_medium" disabled={isBookingDisabled}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={isPaymentModalOpen}>
+        <div class="custom-modal-wrapper">
+            <div class="custom-modal">
+                <div class="custom-modal-header">
+                    <h2 class="custom-modal-title">Payment Gateway</h2>
+                    <button class="custom-modal-close" onclick={closePaymentModal}>&times;</button>
+                </div>
+                <div class="custom-modal-body">
+                    <label class="modal-label">Buyer Name</label>
+                    <input type="text" class="custom-input-field" value={buyerName} readonly>
+    
+                    <label class="modal-label">Buyer Email</label>
+                    <input type="email" class="custom-input-field" value={buyerEmail} readonly>
+    
+                    <label class="modal-label">Total Amount</label>
+                    <input type="text" class="custom-input-field" value={totalAmount} readonly>
+    
+                    <label class="modal-label">Select Payment Method</label>
+                    <select class="custom-input-field" value={paymentType} onchange={handlePaymentTypeChange}>
+                        <option value="">Choose Payment Method</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="UPI">UPI</option>
+                    </select>
+    
+                    <!-- Card Payment Section -->
+                    <template if:true={isCardPayment}>
+                        <div class="card-details-grid">
+                            <div class="card-number-container">
+                                <label class="modal-label">Card Number</label>
+                                <div class="card-number-wrapper">
+                                    <input 
+                                        type="text" 
+                                        class="custom-input-field card-number-input" 
+                                        value={cardNumber} 
+                                        placeholder="1234 5678 9012 3456" 
+                                        maxlength="19" 
+                                        oninput={handleInputChange}
+                                        data-id="cardNumber"
+                                    >
+                                    <!-- Card logo beside the input field -->
+                                    <template if:true={cardLogo}>
+                                        <div class="card-logo-container">
+                                            <img src={cardLogo} alt="Card Logo" class="card-logo">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="modal-label">Expiry Date</label>
+                                <input 
+                                    type="date" 
+                                    class="custom-input-field" 
+                                    value={expiryDate} 
+                                    onchange={handleInputChange} 
+                                    data-id="expiryDate">
+                            </div>
+                            <div>
+                                <label class="modal-label">CVV</label>
+                                <input 
+                                    type="password" 
+                                    class="custom-input-field" 
+                                    value={cvv} 
+                                    maxlength="3" 
+                                    onchange={handleInputChange} 
+                                    data-id="cvv">
+                            </div>
+                        </div>
+                    </template>
+    
+                    <!-- UPI Payment Section -->
+                    <template if:true={isUpiPayment}>
+                        <label class="modal-label">UPI ID</label>
+                        <input 
+                            type="text" 
+                            class="custom-input-field" 
+                            value={upiId} 
+                            placeholder="example@upi" 
+                            onchange={handleInputChange} 
+                            data-id="upiId">
+                    </template>
+
+                    <div class="otp-section">
+                        <label class="modal-label">OTP</label>
+                        <input type="text" class="custom-input-field" placeholder="Enter OTP" value={otp} oninput={handleOtpInputChange} data-id="otp">
+                        <button class="custom-button generate-otp-button" onclick={handleGenerateOTP}>Generate OTP</button>
+                        <button class="custom-button verify-otp-button" onclick={handleVerifyOTP} disabled={isVerifyDisabled}>Verify OTP</button>
+                    </div>
+                
+                    <!-- Conditionally render the Submit Payment button -->
+                    <template if:true={showSubmitButton}>
+                        <button class="custom-submit-button" onclick={handleSubmitPayment}>Submit Payment</button>
+                    </template>
+
+ 
+
+                    
+                </div>
+            </div>
+        </div>
+    </template>
+  
+</template>

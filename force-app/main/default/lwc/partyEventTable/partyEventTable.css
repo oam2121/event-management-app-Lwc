@@ -1,0 +1,307 @@
+/* General Styling for the Main Container */
+:host .main-container {
+    background: linear-gradient(135deg, #e0e0e0, #b3c0e0); /* Light grey to soft blue gradient */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    max-width: 1200px; /* Center and limit width */
+}
+
+/* Styling for the Section Title */
+:host .section-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #4a4a4a; /* Dark grey for a professional look */
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Container for the Table with Gradient Background */
+:host .table-container {
+    background: linear-gradient(135deg, #f0f0f0, #d0e0f0); /* Light gradient to make the table stand out */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Header Styling */
+:host .slds-table thead tr {
+    background: linear-gradient(45deg, #4a90e2, #003366); /* Soft blue to deep blue gradient */
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ddd;
+}
+
+/* Row Hover Effect */
+:host .slds-table tbody tr:hover {
+    background-color: #e0e8f0; /* Light blue on hover */
+    cursor: pointer;
+}
+
+/* View Details Button Styling */
+:host .slds-button {
+    background: linear-gradient(to right, #4a90e2, #003366); /* Gradient button */
+    color: white;
+    border-radius: 4px;
+    font-weight: bold;
+    padding: 5px 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+:host .slds-button:hover {
+    background-color: #4a90e2; /* Solid blue on hover */
+    color: white;
+}
+
+/* Price Field - Align to the Right */
+:host .slds-table td {
+    padding: 10px;
+}
+
+:host .slds-table td:nth-child(6) {
+    text-align: right;
+}
+
+/* Table Padding and Border */
+:host .slds-table {
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+:host .slds-table th, :host .slds-table td {
+    padding: 10px 15px;
+}
+
+:host .slds-table th {
+    border-bottom: 2px solid #e4e4e4;
+}
+
+/* Table Header Background */
+:host .slds-table thead th {
+    background: linear-gradient(45deg, #4a90e2, #003366); /* Deep blue gradient */
+    color: #fff;
+    text-align: left;
+    padding: 12px;
+}
+
+.status-card {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: red; /* Red background for the card */
+    color: white; /* White text color */
+    text-align: center;
+    border-radius: 4px; /* Rounded corners for the card */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* Subtle shadow for depth */
+}
+
+.slds-text-color_success {
+    background-color: green; /* Green background for available status */
+    color: white; /* Ensuring text is white for good contrast */
+    padding: 8px;
+    border-radius: 4px;
+    display: block; /* Makes the span take the full width of its container */
+}
+
+.slds-text-color_error {
+    background-color: red; /* Red background for error or housefull status */
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    display: block;
+}
+
+/* Modal wrapper and backdrop */
+.custom-modal-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Modal styling */
+.custom-modal {
+    background-color: white;
+    width: 600px; /* Wider modal */
+    max-width: 90%;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Header styling */
+.custom-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #1E90FF;
+    color: white;
+    border-radius: 10px 10px 0 0;
+}
+
+.custom-modal-title {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.custom-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: white;
+    cursor: pointer;
+}
+
+/* Body styling */
+.custom-modal-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 15px;
+}
+
+/* Input field styling */
+.custom-input-field {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Labels */
+.modal-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Card Number, Expiry Date, and CVV in a single row */
+.card-details-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr; /* 3-column layout */
+    gap: 15px; /* Space between columns */
+}
+
+/* Submit button */
+.custom-submit-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #1E90FF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.custom-submit-button:hover {
+    background-color: #1c7ed6;
+}
+
+/* Animation */
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+/* Container for the entire card number section */
+.card-number-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* Wrapper for input field and logo, to display them side by side */
+.card-number-wrapper {
+    display: flex;
+    align-items: center; /* Aligns input and logo vertically */
+}
+
+/* Style for the card number input */
+.card-number-input {
+    width: 90%; /* Adjust width to leave space for the logo */
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Container for the card logo */
+.card-logo-container {
+    margin-left: 10px; /* Spacing between input and logo */
+}
+
+/* Style for the card logo image */
+.card-logo {
+    width: 40px; /* Adjust logo size */
+    height: auto;
+    pointer-events: none; /* Prevent interaction */
+}
+
+/* General button styling adjustment for size */
+.custom-button {
+    background-color: #0D47A1; /* Deep blue background */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;  /* Reduced padding for less button height and width */
+    font-size: 14px;    /* Slightly smaller text */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    width: auto;        /* Adjust width to content */
+    min-width: 100px;   /* Minimum width to keep buttons decently sized */
+    margin: 0 5px;      /* Adds margin between buttons */
+}
+
+.custom-button:hover {
+    background-color: #1565C0; /* Lighter blue on hover */
+    transform: scale(1.03); /* Subtle increase in size on hover */
+}
+
+.custom-button:disabled {
+    background-color: #B0BEC5; /* Gray color for disabled state */
+    cursor: not-allowed;
+}
+
+/* Specific styles for the Generate OTP button */
+.generate-otp-button {
+    background-color: #4CAF50; /* Green background */
+}
+
+.generate-otp-button:hover {
+    background-color: #66BB6A; /* Lighter green on hover */
+}
+
+/* Specific styles for the Verify OTP button */
+.verify-otp-button {
+    background-color: #F57C00; /* Orange background */
+}
+
+.verify-otp-button:hover {
+    background-color: #FF9800; /* Lighter orange on hover */
+}
+
+
+
+
+
+
+
+
+

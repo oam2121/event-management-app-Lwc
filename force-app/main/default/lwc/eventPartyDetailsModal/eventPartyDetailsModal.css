@@ -1,0 +1,136 @@
+/* Full-screen modal with better structure */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Modal background overlay */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+}
+
+/* Full-screen modal container */
+.full-screen-modal {
+    width: 60%;
+    height: auto;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.full-screen-modal-header {
+    background: linear-gradient(135deg, #ffcc00, #ff9900);
+    color: white;
+    padding: 20px;
+    font-size: 24px;
+    text-align: center;
+    position: relative;
+}
+
+/* Close button */
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background-color: transparent;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Modal content */
+.modal-content {
+    padding: 30px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+/* Table for event details */
+.event-details-content table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.event-details-content td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Modal footer */
+.modal-footer {
+    padding: 20px;
+    text-align: right;
+    background-color: white;
+    border-top: 1px solid #ddd;
+}
+
+.close-button {
+    background-color: #ff9900;
+    color: white;
+    border-radius: 5px;
+}
+
+.close-button:hover {
+    background-color: #ffcc00;
+}
+
+/* Delete button */
+.delete-button {
+    background-color: #d9534f;
+    color: white;
+    border-radius: 5px;
+}
+
+.delete-button:hover {
+    background-color: #c9302c;
+}
+
+/* Animation for modal */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+}
+
+/* Style for calendar buttons */
+.calendar-buttons {
+    display: flex;
+    gap: 10px;  /* Adds spacing between the buttons */
+    margin-top: 20px;
+}
+
+.calendar-buttons .calendar-button {
+    padding: 10px 20px;
+    border: 2px solid #1a73e8;  /* Blue border to match Google Calendar style */
+    background-color: white;
+    color: #1a73e8;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.calendar-buttons .calendar-button:hover {
+    background-color: #1a73e8;
+    color: white;
+}
+
+.calendar-buttons .calendar-button:active {
+    background-color: #0c59b2;
+    border-color: #0c59b2;
+}
+

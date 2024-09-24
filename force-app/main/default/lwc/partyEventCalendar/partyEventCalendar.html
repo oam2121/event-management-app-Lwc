@@ -54,7 +54,7 @@
                             data-id={event.id} 
                             style={event.style} 
                             ondragstart={handleDragStart}
-                            onclick={handleEventClick}>
+                            onclick={handlePartyEventClick}>
                             {event.name}
                         </div>
                     </template>
@@ -62,6 +62,14 @@
             </template>
         </div>
     </lightning-card>
+
+      <!-- Event details modal -->
+    <template if:true={isModalOpen}>
+        <c-event-party-details-modal 
+            event-id={selectedEventId} 
+            onclose={closeModal}>
+        </c-event-party-details-modal>
+    </template>
 
    <!-- Section: Modal for Event Details -->
     <template if:true={isModalOpen}>

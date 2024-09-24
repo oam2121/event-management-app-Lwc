@@ -10,7 +10,7 @@ public class TicketEmailFuture {
                                    FROM Ticket__c WHERE Id IN :ticketIds];
         
         for (Ticket__c ticket : tickets) {
-            TicketEmailController.sendTicketEmail(ticket);
+            TicketEmailControllerForParty.sendTicketEmail(ticket);
         }
     }
 }

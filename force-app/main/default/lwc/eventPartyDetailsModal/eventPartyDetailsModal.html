@@ -1,0 +1,67 @@
+<template>
+    <template if:true={eventRecord}>
+        <div class="modal-overlay">
+            <div class="full-screen-modal">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <header class="full-screen-modal-header">
+                        <h2 class="modal-title">Event Details</h2>
+                        <button class="slds-button_icon-inverse close-btn" onclick={closeModal} title="Close">
+                            <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                        </button>
+                    </header>
+
+                    <!-- Modal Body -->
+                    <div class="event-details-content">
+                        <table class="slds-table slds-table_bordered">
+                            <tr>
+                                <td><strong>Event Name:</strong></td>
+                                <td>{eventRecord.Event_Name__c}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Event Type:</strong></td>
+                                <td>{eventRecord.Event_Type__c}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Start Date:</strong></td>
+                                <td>{eventRecord.startDate}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Start Time:</strong></td>
+                                <td>{eventRecord.startTime}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>End Date:</strong></td>
+                                <td>{eventRecord.endDate}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>End Time:</strong></td>
+                                <td>{eventRecord.endTime}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Location:</strong></td>
+                                <td>{eventRecord.Location__c}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Price:</strong></td>
+                                <td>₹{eventRecord.Price__c}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Google and Outlook Calendar Links -->
+                    <div class="calendar-buttons">
+                        <lightning-button label="Add to Google Calendar" onclick={handleGoogleCalendarClick} class="google-calendar-button"></lightning-button>
+                        <lightning-button label="Add to Outlook Calendar" onclick={handleOutlookCalendarClick} class="outlook-calendar-button"></lightning-button>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <footer class="modal-footer">
+                        <lightning-button label="Delete Event" variant="destructive" onclick={deleteEvent}></lightning-button>
+                        <lightning-button label="Close" class="close-button" onclick={closeModal}></lightning-button>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

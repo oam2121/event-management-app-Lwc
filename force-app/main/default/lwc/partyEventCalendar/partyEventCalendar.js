@@ -7,6 +7,7 @@ import createEvent from '@salesforce/apex/PartyEventController.createEvent';
 import searchEvents from '@salesforce/apex/EventController.searchEvents'; // Fetch the filtered events by search
 import createTicket from '@salesforce/apex/TicketController.createTicket'; 
 
+
 export default class CalendarComponent extends LightningElement {
     // Section: Track variables for modal, events, calendar, and filtering
     @track isCreateModalOpen = false; // Controls the visibility of the create event modal
@@ -25,6 +26,7 @@ export default class CalendarComponent extends LightningElement {
     @track quantity = 1; // Default quantity is 1
     @track ticketType = '';
     @track paymentStatus = '';
+    @track selectedEventId;  // Holds the ID of the clicked event
     @track eventTypes = [
         { label: 'All', value: 'All' },
         { label: 'Music', value: 'Music' },
@@ -564,6 +566,17 @@ closeTicketModal() {
     window.location.reload(); // Refresh the page
 }
 
+// Handle the click on an event card to open the modal
+handlePartyEventClick(event) {
+    const eventId = event.target.dataset.id;  // Get the clicked event's ID
+    this.selectedEventId = eventId;  // Set the selected event ID
+    this.isModalOpen = true;  // Open the modal
+}
+
+// Close the event details modal
+closeModal() {
+    this.isModalOpen = false;  // Close the modal
+}
     
     
     
