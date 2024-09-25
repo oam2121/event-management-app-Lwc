@@ -381,4 +381,18 @@ get isVerifyDisabled() {
 get isSubmitDisabled() {
     return !this.isOtpValid;  // If OTP is not valid, disable "Submit Payment" button
 }
+
+handleViewDetails(event) {
+    const eventId = event.target.getAttribute('data-id');
+    this.selectedEventId = eventId;
+    this.isModalOpen = true;
+}
+
+handleBookTickets(event) {
+    const eventId = event.target.getAttribute('data-id');
+    this.selectedEventId = eventId;
+    this.isTicketModalOpen = true;
+    this.fetchSeatingStatus();
+}
+
 }

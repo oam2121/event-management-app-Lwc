@@ -1,0 +1,93 @@
+<template>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="navbar">
+            <div class="logo">Eventix</div>
+            <nav>
+                <ul>
+                    <li><a href="#home" onclick={smoothScrollToSection}>Home</a></li>
+                    <li><a href="#features" onclick={smoothScrollToSection}>Features</a></li>
+                    <li><a href="#pricing" onclick={smoothScrollToSection}>Pricing</a></li>
+                    <li><a href="#contact" onclick={smoothScrollToSection}>Contact Us</a></li>
+                </ul>
+            </nav>
+              
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1>Welcome to Eventix</h1>
+        <p>Transform Your Event Management Experience</p>
+        <button class="cta-button bounce-button">Explore Now</button>
+    </section>
+
+    <!-- Key Features Section -->
+    <section class="features-section">
+        <h2>Key Features of Eventix</h2>
+        <div class="feature-card" onmouseover={animateCard}>
+            <img src="https://ciklum13-dev-ed--c.develop.vf.force.com/resource/1727247459000/logo1?" alt="Corporate Event Management">
+            <h3>Corporate Event Management</h3>
+            <p>Manage large-scale corporate events with ease. Track RSVPs, automate follow-ups, and more.</p>
+        </div>
+        <div class="feature-card" onmouseover={animateCard}>
+            <img src="https://ciklum13-dev-ed--c.develop.vf.force.com/resource/1727247528000/logo2?" alt="Party & Music Event Planner">
+            <h3>Party & Music Event Planner</h3>
+            <p>Organize parties with ticketing, branding, and payment integration all in one platform.</p>
+        </div>
+        <div class="feature-card" onmouseover={animateCard}>
+            <img src="https://ciklum13-dev-ed--c.develop.vf.force.com/resource/1727247565000/logo3?" alt="Hybrid Event Solutions">
+            <h3>Hybrid Event Solutions</h3>
+            <p>Combine in-person and virtual events seamlessly. Host hybrid conferences and meetings with ease.</p>
+        </div>
+    </section>
+
+    <!-- Client Section -->
+    <section class="testimonials">
+        <h2>Trusted by Leading Organizations</h2>
+        <div class="client-logos">
+            <img src="https://ciklum13-dev-ed--c.develop.vf.force.com/resource/1727249415000/company1?" alt="Client 1">
+            <img src="https://ciklum13-dev-ed--c.develop.vf.force.com/resource/1727249471000/company2?" alt="Client 2">
+            
+        </div>
+    </section>
+
+    <!-- Calendar Section -->
+    <section class="calendar-options">
+        <h2>Select Your Event Calendar</h2>
+        <div class="button-group">
+             <button class="calendar-button bounce-button">Corporate Calendar</button>
+             <button class="calendar-button bounce-button">Party Calendar</button>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Eventix</h3>
+                <p>Eventix is your all-in-one event management solution for corporate, party, and hybrid events.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <ul class="social-links">
+                    <li><a href="#"><img src="facebook.png" alt="Facebook"></a></li>
+                    <li><a href="#"><img src="twitter.png" alt="Twitter"></a></li>
+                    <li><a href="#"><img src="instagram.png" alt="Instagram"></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Eventix. All rights reserved.</p>
+        </div>
+    </footer>
+</template>

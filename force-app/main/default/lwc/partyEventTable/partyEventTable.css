@@ -1,120 +1,132 @@
 /* General Styling for the Main Container */
 :host .main-container {
-    background: linear-gradient(135deg, #e0e0e0, #b3c0e0); /* Light grey to soft blue gradient */
+    background: linear-gradient(135deg, #6a11cb, #2575fc); /* Light cyan gradient */
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
     margin: 0 auto;
-    max-width: 1200px; /* Center and limit width */
+    max-width: 100%; /* Make container full width */
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Ensure padding doesn't affect the width */
 }
 
 /* Styling for the Section Title */
 :host .section-title {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
-    color: #4a4a4a; /* Dark grey for a professional look */
+    color: #f5f7f8; /* Dark slate color */
     text-align: center;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+    letter-spacing: 1px;
+    font-family: 'Roboto', sans-serif; /* Using a modern font */
 }
 
 /* Container for the Table with Gradient Background */
 :host .table-container {
-    background: linear-gradient(135deg, #f0f0f0, #d0e0f0); /* Light gradient to make the table stand out */
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #d9e7ff, #bde0fe); /* Light gradient for subtle emphasis */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    transition: transform 0.3s ease; /* Smooth transition */
+    width: 100%; /* Full width for container */
+    box-sizing: border-box;
+}
+
+:host .table-container:hover {
+    transform: scale(1.02); /* Slight zoom on hover */
+}
+
+/* Custom Table Styling */
+.custom-table {
+    width: 100%; /* Full width for the table */
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    font-family: 'Roboto', sans-serif;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1); /* Box shadow to lift the table */
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 /* Table Header Styling */
-:host .slds-table thead tr {
-    background: linear-gradient(45deg, #4a90e2, #003366); /* Soft blue to deep blue gradient */
+.custom-table thead tr {
+    background-color: #4a90e2;
     color: white;
-    font-weight: bold;
     text-transform: uppercase;
-    border-bottom: 2px solid #ddd;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+.custom-table th, .custom-table td {
+    padding: 15px 20px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+/* Alternate Row Color */
+.custom-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Soft grey for alternate rows */
 }
 
 /* Row Hover Effect */
-:host .slds-table tbody tr:hover {
-    background-color: #e0e8f0; /* Light blue on hover */
-    cursor: pointer;
-}
-
-/* View Details Button Styling */
-:host .slds-button {
-    background: linear-gradient(to right, #4a90e2, #003366); /* Gradient button */
-    color: white;
-    border-radius: 4px;
-    font-weight: bold;
-    padding: 5px 10px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-:host .slds-button:hover {
-    background-color: #4a90e2; /* Solid blue on hover */
-    color: white;
+.custom-table tbody tr:hover {
+    background-color: #e0f7fa; /* Soft cyan on hover */
 }
 
 /* Price Field - Align to the Right */
-:host .slds-table td {
-    padding: 10px;
-}
-
-:host .slds-table td:nth-child(6) {
+.custom-table td:nth-child(6) {
     text-align: right;
 }
 
-/* Table Padding and Border */
-:host .slds-table {
-    border-collapse: collapse;
-    border: 1px solid #ddd;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+/* Button Styling */
+.action-button {
+    background-color: #4a90e2; /* Light blue background */
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    transition: background-color 0.3s, box-shadow 0.2s; /* Smooth transitions */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for buttons */
+    margin: 5px;
 }
 
-:host .slds-table th, :host .slds-table td {
-    padding: 10px 15px;
+.action-button:hover {
+    background-color: #0277bd; /* Darker blue on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Deepen the shadow */
 }
 
-:host .slds-table th {
-    border-bottom: 2px solid #e4e4e4;
+.action-button:active {
+    background-color: #01579b; /* Even darker when pressed */
 }
 
-/* Table Header Background */
-:host .slds-table thead th {
-    background: linear-gradient(45deg, #4a90e2, #003366); /* Deep blue gradient */
-    color: #fff;
-    text-align: left;
-    padding: 12px;
-}
-
-.status-card {
-    margin-top: 10px;
-    padding: 8px;
-    background-color: red; /* Red background for the card */
-    color: white; /* White text color */
-    text-align: center;
-    border-radius: 4px; /* Rounded corners for the card */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* Subtle shadow for depth */
-}
-
+/* Specific Status Styling */
 .slds-text-color_success {
-    background-color: green; /* Green background for available status */
-    color: white; /* Ensuring text is white for good contrast */
-    padding: 8px;
-    border-radius: 4px;
-    display: block; /* Makes the span take the full width of its container */
-}
-
-.slds-text-color_error {
-    background-color: red; /* Red background for error or housefull status */
+    background-color: #66bb6a; /* Green background for available status */
     color: white;
     padding: 8px;
     border-radius: 4px;
     display: block;
+    text-align: center;
+    font-weight: bold;
+}
+
+.slds-text-color_error {
+    background-color: #e53935; /* Red background for error or full status */
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    display: block;
+    text-align: center;
+    font-weight: bold;
 }
 
 /* Modal wrapper and backdrop */
+/* Modal Wrapper and Backdrop */
 .custom-modal-wrapper {
     position: fixed;
     top: 0;
@@ -124,14 +136,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1050;
     background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
 }
 
 /* Modal styling */
 .custom-modal {
     background-color: white;
-    width: 600px; /* Wider modal */
+    width: 600px;
     max-width: 90%;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -139,7 +151,7 @@
     transition: all 0.3s ease;
 }
 
-/* Header styling */
+/* Modal Header */
 .custom-modal-header {
     display: flex;
     justify-content: space-between;
@@ -163,12 +175,16 @@
     cursor: pointer;
 }
 
-/* Body styling */
+/* Modal Body */
 .custom-modal-body {
     padding: 20px;
     display: grid;
     grid-template-columns: 1fr;
     row-gap: 15px;
+}
+
+.input-group {
+    margin-bottom: 15px;
 }
 
 /* Input field styling */
@@ -184,7 +200,57 @@
 .modal-label {
     font-weight: bold;
     margin-bottom: 5px;
+    display: block;
 }
+
+/* Modal Footer */
+.custom-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* General button styling */
+.custom-button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+}
+
+.custom-button:hover {
+    background-color: #0277bd;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Submit button */
+.custom-submit-button {
+    background-color: #1E90FF;
+}
+
+.custom-submit-button:hover {
+    background-color: #1c7ed6;
+}
+
+/* Progress Bar */
+.progress-bar {
+    height: 20px;
+    background-color: #f3f4f6;
+    border-radius: 10px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+
+.progress-bar-inner {
+    height: 100%;
+    background-color: #4a90e2;
+    width: 0;
+    transition: width 0.5s ease-in-out;
+}
+
 
 /* Card Number, Expiry Date, and CVV in a single row */
 .card-details-grid {
@@ -221,6 +287,7 @@
         opacity: 1;
     }
 }
+
 /* Container for the entire card number section */
 .card-number-container {
     width: 100%;
@@ -296,12 +363,3 @@
 .verify-otp-button:hover {
     background-color: #FF9800; /* Lighter orange on hover */
 }
-
-
-
-
-
-
-
-
-

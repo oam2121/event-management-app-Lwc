@@ -1,0 +1,282 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    overflow-x: hidden; /* Prevents horizontal scroll */
+}
+
+/* Header Styles */
+.header {
+    background-color: #333;
+    padding: 10px 0;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+}
+
+.navbar .logo {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.navbar ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.navbar ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+/* Hero Section */
+.hero-section {
+    background-color: #0052cc;
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+}
+
+.hero-section h1 {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+.hero-section p {
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.cta-button {
+    background-color: #ff6600;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cta-button:hover {
+    background-color: #ff3300;
+}
+
+/* Features Section */
+.features-section {
+    display: flex;
+    justify-content: space-around;
+    padding: 50px 0;
+    background-color: #e9f0f7;
+    text-align: center;
+    flex-wrap: wrap; /* Allows the cards to stack vertically */
+}
+
+.features-section h2 {
+    width: 100%;
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.feature-card {
+    background-color: #ffffff;
+    padding: 20px;
+    width: 30%;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin: 10px;
+}
+
+.feature-card img {
+    max-width: 100px;
+    margin-bottom: 15px;
+}
+
+.feature-card h3 {
+    font-size: 22px;
+    color: #333;
+}
+
+.feature-card p {
+    font-size: 16px;
+    color: #555;
+}
+
+.feature-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Client Logos Section */
+.testimonials {
+    background-color: #f4f4f4;
+    padding: 50px 0;
+    text-align: center;
+}
+
+.testimonials h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.client-logos img {
+    margin: 0 15px;
+    height: 50px;
+}
+
+/* Calendar Options Section */
+.calendar-options {
+    padding: 50px 0;
+    text-align: center;
+    background-color: #0052cc;
+    color: white;
+}
+
+.calendar-options h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.calendar-button {
+    background-color: #ff6600;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.calendar-button:hover {
+    background-color: #ff3300;
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #333;
+    color: white;
+    padding: 50px 0;
+    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.footer-section h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin: 10px 0;
+}
+
+.footer-section ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer-section .social-links img {
+    height: 30px;
+    margin: 0 10px;
+}
+
+.footer-bottom {
+    border-top: 1px solid #555;
+    padding-top: 20px;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .features-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .feature-card {
+        width: 90%;
+    }
+
+
+    .navbar ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero-section h1 {
+        font-size: 40px;
+    }
+
+    .hero-section p {
+        font-size: 18px;
+    }
+}
+
+/* Add these styles for fade-in effects */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+/* Bounce animation */
+.bounce-button {
+    transition: transform 0.2s ease-in-out;
+}
+
+.bounce-button:hover {
+    transform: translateY(-10px);
+    transition: transform 0.3s ease-in-out;
+}
+/* Slide-in and scale-up effects */
+.slide-in {
+    transform: translateX(-100px);
+    opacity: 0;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.slide-in-visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.scale-up {
+    transform: scale(0.8);
+    opacity: 0;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.scale-up-visible {
+    transform: scale(1);
+    opacity: 1;
+}
+

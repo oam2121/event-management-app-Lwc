@@ -1,67 +1,121 @@
 <template>
-    <div class="main-container">
-        <h2 class="section-title">Party Events</h2>
-        
-        <!-- Conditional rendering for events -->
-        <template if:true={events.length}>
-            <div class="table-container">
-                <lightning-datatable
-                    key-field="Id"
-                    data={events}
-                    columns={columns}
-                    hide-checkbox-column="true"
-                    onrowaction={handleRowAction}
-                >
-                </lightning-datatable>
-            </div>
+
+        <div class="main-container">
+            <h2 class="section-title">Party Events</h2>
+    
+            <!-- Conditional rendering for events -->
+            <template if:true={events.length}>
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Event Name</th>
+                                <th>Event Type</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Location</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={events} for:item="event">
+                                <tr key={event.Id}>
+                                    <td>{event.Event_Name__c}</td>
+                                    <td>{event.Event_Type__c}</td>
+                                    <td>{event.Event_Start_Date__c}</td>
+                                    <td>{event.Event_End_Date__c}</td>
+                                    <td>{event.Location__c}</td>
+                                    <td>{event.Price__c}</td>
+                                    <td>
+                                        <button class="action-button" onclick={handleViewDetails} data-id={event.Id}>View Details</button>
+                                        <button class="action-button" onclick={handleBookTickets} data-id={event.Id}>Book Tickets</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+    
+            <!-- Show message if no events are found -->
+            <template if:false={events.length}>
+                <p>No events available at the moment.</p>
+            </template>
+        </div>
+    
+        <!-- Event Details Custom Modal -->
+        <template if:true={isModalOpen}>
+            <c-event-party-details-modal 
+                event-id={selectedEventId} 
+                onclose={closeModal}>
+            </c-event-party-details-modal>
         </template>
 
-        <!-- Show message if no events are found -->
-        <template if:false={events.length}>
-            <p>No events available at the moment.</p>
-        </template>
-    </div>
-
-    <!-- Event Details Custom Modal -->
-    <template if:true={isModalOpen}>
-        <c-event-party-details-modal 
-            event-id={selectedEventId} 
-            onclose={closeModal}>
-        </c-event-party-details-modal>
-    </template>
 
     <!-- Ticket Booking Modal -->
-    <template if:true={isTicketModalOpen}>
-        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
-                <header class="slds-modal__header">
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeTicketModal}>
-                        <lightning-icon icon-name="utility:close" size="small" alternative-text="Close"></lightning-icon>
-                        <span class="slds-assistive-text">Close</span>
-                    </button>
-                    <h2 class="slds-text-heading_medium">Book Tickets</h2>
-                    <div class={statusClass}>
-                        {seatingStatus}
-                    </div>
-                    <lightning-progress-bar value={progressPercentage} size="large" variant="base"></lightning-progress-bar>
-                    <p>Progress: {progressPercentage}%</p>
-                </header>
-                <div class="slds-modal__content slds-p-around_medium" style="height: auto;">
-                    <lightning-input label="Buyer Name" value={buyerName} onchange={handleInputChange} data-id="buyerName" disabled={isBookingDisabled}></lightning-input>
-                    <lightning-input label="Buyer Email" type="email" value={buyerEmail} onchange={handleInputChange} data-id="buyerEmail" disabled={isBookingDisabled}></lightning-input>
-                    <lightning-input label="Quantity" type="number" value={quantity} min="1" onchange={handleInputChange} data-id="quantity" disabled={isBookingDisabled}></lightning-input>
-                    <lightning-combobox label="Ticket Type" value={ticketType} options={ticketTypes} onchange={handleInputChange} data-id="ticketType" disabled={isBookingDisabled}></lightning-combobox>
-                    <lightning-combobox label="Payment Status" value={paymentStatus} options={paymentStatuses} onchange={handleInputChange} data-id="paymentStatus" disabled={isBookingDisabled}></lightning-combobox>
+<template if:true={isTicketModalOpen}>
+    <div class="custom-modal-wrapper">
+        <div class="custom-modal">
+            <!-- Modal Header -->
+            <header class="custom-modal-header">
+                <button class="custom-modal-close" onclick={closeTicketModal}>X</button>
+                <h2 class="custom-modal-title">Book Tickets</h2>
+                <div class={statusClass}>
+                    {seatingStatus}
                 </div>
-                <footer class="slds-modal__footer">
-                    <lightning-button variant="neutral" label="Close" onclick={closeTicketModal}></lightning-button>
-                    <lightning-button variant="neutral" label="Add Another Ticket" onclick={resetFormForAnotherTicket} disabled={isBookingDisabled}></lightning-button>
-                    <lightning-button variant="brand" label="Book Now" onclick={bookTickets} class="slds-m-left_medium" disabled={isBookingDisabled}></lightning-button>
-                </footer>
+                <div class="progress-bar">
+                    <div class="progress-bar-inner" style="width: {progressPercentage}%;"></div>
+                </div>
+                <p>Progress: {progressPercentage}%</p>
+            </header>
+
+            <!-- Modal Body -->
+            <div class="custom-modal-body">
+                <div class="input-group">
+                    <label class="modal-label">Buyer Name</label>
+                    <input type="text" class="custom-input-field" value={buyerName} onchange={handleInputChange} data-id="buyerName" disabled={isBookingDisabled} />
+                </div>
+                <div class="input-group">
+                    <label class="modal-label">Buyer Email</label>
+                    <input type="email" class="custom-input-field" value={buyerEmail} onchange={handleInputChange} data-id="buyerEmail" disabled={isBookingDisabled} />
+                </div>
+                <div class="input-group">
+                    <label class="modal-label">Quantity</label>
+                    <input type="number" class="custom-input-field" value={quantity} min="1" onchange={handleInputChange} data-id="quantity" disabled={isBookingDisabled} />
+                </div>
+                <div class="input-group">
+                    <label class="modal-label">Ticket Type</label>
+                    <select class="custom-input-field" onchange={handleInputChange} data-id="ticketType" disabled={isBookingDisabled}>
+                        <option value="" disabled selected>Select Ticket Type</option> <!-- Placeholder option -->
+                        <option value="Regular">Regular</option>
+                        <option value="VIP">VIP</option>
+                        <option value="Early Bird">Early Bird</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label class="modal-label">Payment Status</label>
+                    <select class="custom-input-field" onchange={handleInputChange} data-id="paymentStatus" disabled={isBookingDisabled}>
+                        <option value="" disabled selected>Select Payment Status</option> <!-- Placeholder option -->
+                        <option value="Paid">Paid</option>
+                        <option value="Unpaid">Unpaid</option>
+                        <option value="Failed">Failed</option>
+                    </select>
+                </div>
+                
             </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
+
+            <!-- Modal Footer -->
+            <footer class="custom-modal-footer">
+                <button class="custom-button" onclick={closeTicketModal}>Close</button>
+                <button class="custom-button" onclick={resetFormForAnotherTicket} disabled={isBookingDisabled}>Add Another Ticket</button>
+                <button class="custom-button custom-submit-button" onclick={bookTickets} disabled={isBookingDisabled}>Book Now</button>
+            </footer>
+        </div>
+    </div>
+</template>
+
 
     <template if:true={isPaymentModalOpen}>
         <div class="custom-modal-wrapper">

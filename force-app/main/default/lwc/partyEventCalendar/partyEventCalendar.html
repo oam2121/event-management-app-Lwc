@@ -305,4 +305,101 @@
     <div class="slds-backdrop slds-backdrop_open"></div>
 </template>
 
+<template if:true={isPaymentModalOpen}>
+    <div class="payment-modal-wrapper">
+        <div class="payment-modal">
+            <div class="payment-modal-header">
+                <h2 class="payment-modal-title">Payment Gateway</h2>
+                <button class="payment-modal-close" onclick={closePaymentModal}>&times;</button>
+            </div>
+            <div class="payment-modal-body">
+                <label class="modal-label">Buyer Name</label>
+                <input type="text" class="payment-input-field" value={buyerName} readonly>
+
+                <label class="modal-label">Buyer Email</label>
+                <input type="email" class="payment-input-field" value={buyerEmail} readonly>
+
+                <label class="modal-label">Total Amount</label>
+                <input type="text" class="payment-input-field" value={totalAmount} readonly>
+
+                <label class="modal-label">Select Payment Method</label>
+                <select class="payment-input-field" value={paymentType} onchange={handlePaymentTypeChange}>
+                    <option value="">Choose Payment Method</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="UPI">UPI</option>
+                </select>
+
+                <!-- Card Payment Section -->
+                <template if:true={isCardPayment}>
+                    <div class="card-details-row">
+                        <div class="card-number-container">
+                            <label class="modal-label">Card Number</label>
+                            <div class="card-number-wrapper">
+                                <input 
+                                    type="text" 
+                                    class="payment-input-field card-number-input" 
+                                    value={cardNumber} 
+                                    placeholder="1234 5678 9012 3456" 
+                                    maxlength="19" 
+                                    oninput={handleInputChangePayment}
+                                    data-id="cardNumber"
+                                >
+                                <div class="card-logo-container">
+                                    <template if:true={cardLogo}>
+                                        <img src={cardLogo} alt="Card Logo" class="card-logo">
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="expiry-date-container">
+                            <label class="modal-label">Expiry Date</label>
+                            <input 
+                            type="date" 
+                            class="payment-input-field" 
+                            value={expiryDate} 
+                            onchange={handleInputChangePayment} 
+                            data-id="expiryDate">
+                        </div>
+                        <div class="cvv-container">
+                            <label class="modal-label">CVV</label>
+                            <input 
+                                type="password" 
+                                class="payment-input-field" 
+                                value={cvv} 
+                                maxlength="3" 
+                                onchange={handleInputChangePayment} 
+                                data-id="cvv">
+                        </div>
+                    </div>
+                </template>
+
+                <!-- UPI Payment Section -->
+                <template if:true={isUpiPayment}>
+                    <label class="modal-label">UPI ID</label>
+                    <input 
+                        type="text" 
+                        class="payment-input-field" 
+                        value={upiId} 
+                        placeholder="example@upi" 
+                        onchange={handleInputChangePayment} 
+                        data-id="upiId">
+                </template>
+
+                <div class="payment-otp-section">
+                    <label class="modal-label">OTP</label>
+                    <input type="text" class="payment-input-field" placeholder="Enter OTP" value={otp} oninput={handleOtpInputChange} data-id="otp">
+                    <button class="payment-button generate-otp-button" onclick={handleGenerateOTP}>Generate OTP</button>
+                    <button class="payment-button verify-otp-button" onclick={handleVerifyOTP} disabled={isVerifyDisabled}>Verify OTP</button>
+                </div>
+
+                <!-- Conditionally render the Submit Payment button -->
+                <template if:true={showSubmitButton}>
+                    <button class="payment-submit-button" onclick={handleSubmitPayment}>Submit Payment</button>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>
+
 </template>

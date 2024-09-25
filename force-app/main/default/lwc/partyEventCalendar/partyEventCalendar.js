@@ -4,29 +4,51 @@ import updateEventDate from '@salesforce/apex/PartyEventController.updateEventDa
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import LightningAlert from 'lightning/alert';
 import createEvent from '@salesforce/apex/PartyEventController.createEvent';
-import searchEvents from '@salesforce/apex/EventController.searchEvents'; // Fetch the filtered events by search
-import createTicket from '@salesforce/apex/TicketController.createTicket'; 
-
+import searchEvents from '@salesforce/apex/EventController.searchEvents';
+import createTicket from '@salesforce/apex/TicketController.createTicket';
+import savePayment from '@salesforce/apex/PaymentController.savePayment';
+import generateAndSendOTP from '@salesforce/apex/OTPService.generateAndSendOTP';
+import verifyOTP from '@salesforce/apex/OTPService.verifyOTP';
+import visaLogo from '@salesforce/resourceUrl/visa';
+import mastercardLogo from '@salesforce/resourceUrl/mastercard';
+import amexLogo from '@salesforce/resourceUrl/amex';
+import defaultLogo from '@salesforce/resourceUrl/defaultLogo';
 
 export default class CalendarComponent extends LightningElement {
-    // Section: Track variables for modal, events, calendar, and filtering
-    @track isCreateModalOpen = false; // Controls the visibility of the create event modal
-    @track isModalOpen = false; // Controls the visibility of the event details modal
-    @track newEvent = {}; // Holds the new event details for creation
-    @track selectedEvent = {}; // Holds the selected event details for the event details modal
-    @track calendarDays = []; // Holds the calendar grid data
-    @track formattedMonthYear = ''; // Holds the formatted month and year for the calendar header
-    @track events = []; // Stores all events fetched from the Apex controller
-    @track filteredEvents = []; // Stores the filtered events after a search
-    @track selectedEventType = 'All'; // Tracks the selected event type for filtering
-    @track selectedView = 'Monthly'; // Default view is Monthly
-    newEventId = '';  // To store the new event Id after creating it
+    @track isCreateModalOpen = false;
+    @track isModalOpen = false;
+    @track newEvent = {};
+    @track selectedEvent = {};
+    @track calendarDays = [];
+    @track formattedMonthYear = '';
+    @track events = [];
+    @track filteredEvents = [];
+    @track selectedEventType = 'All';
+    @track selectedView = 'Monthly';
     @track buyerName = '';
     @track buyerEmail = '';
-    @track quantity = 1; // Default quantity is 1
+    @track quantity = 1;
     @track ticketType = '';
     @track paymentStatus = '';
-    @track selectedEventId;  // Holds the ID of the clicked event
+    @track selectedEventId = '';
+    @track isTicketModalOpen = false;
+    @track isPaymentModalOpen = false;
+    @track totalAmount = 0;
+    @track otp = '';
+    @track isOtpValid = false;
+    @track showSubmitButton = false;
+    @track cardNumber = '';
+    rawCardNumber = '';
+    @track expiryDate;
+    @track cvv = '';
+    @track upiId = '';
+    @track paymentType = '';
+    @track cardLogo = defaultLogo;
+    @track expiryDate;
+    newEventId = '';  
+    @track showCardPaymentFields = false;
+    @track showUpiPaymentFields = false;
+
     @track eventTypes = [
         { label: 'All', value: 'All' },
         { label: 'Music', value: 'Music' },
@@ -41,11 +63,15 @@ export default class CalendarComponent extends LightningElement {
         { label: 'VIP', value: 'VIP' },
         { label: 'Early Bird', value: 'Early Bird' }
     ];
-
     @track paymentStatuses = [
         { label: 'Paid', value: 'Paid' },
         { label: 'Unpaid', value: 'Unpaid' },
         { label: 'Failed', value: 'Failed' }
+    ];
+    @track paymentOptions = [
+        { label: 'Debit Card', value: 'Debit Card' },
+        { label: 'Credit Card', value: 'Credit Card' },
+        { label: 'UPI', value: 'UPI' }
     ];
    
     draggedEvent = null; // Holds the event that is being dragged for date change
@@ -66,10 +92,11 @@ export default class CalendarComponent extends LightningElement {
     
     // Lifecycle hook: Runs when the component is inserted into the DOM
     connectedCallback() {
-        this.loadEvents();
+        this.loadEvents();  // Existing loadEvents method
         this.today = new Date();
+        this.showCardPaymentFields = false;  // Ensure these are hidden initially
+        this.showUpiPaymentFields = false;
     }
-
     getDayClass(day) {
         return `calendar-day ${day.isToday ? 'today' : ''}`;
     }
@@ -404,12 +431,40 @@ export default class CalendarComponent extends LightningElement {
         }
     }
     
+// Updated: Handle input changes for all form fields including price
+handleInputChange(event) {
+    const field = event.target.name;
+    this.newEvent[field] = event.target.value; // Handles fields like eventName, description, price, etc.
+}
 
-    // Updated: Handle input changes for all form fields including price
-    handleInputChange(event) {
-        const field = event.target.name;
-        this.newEvent[field] = event.target.value; // Handles fields like eventName, description, price, etc.
+get isCardPayment() {
+    return this.paymentType === 'Debit Card' || this.paymentType === 'Credit Card';
+}
+
+get isUpiPayment() {
+    return this.paymentType === 'UPI';
+}
+
+get isSubmitDisabled() {
+    return !this.isOtpValid;
+}
+
+handlePaymentTypeChange(event) {
+    this.paymentType = event.target.value;
+}
+
+handleInputChangePayment(event) {
+    const field = event.target.dataset.id;
+    if (field === 'cardNumber') {
+        let inputVal = event.target.value.replace(/\D/g, ''); // Remove non-numeric characters
+        this.rawCardNumber = inputVal;
+        if (this.rawCardNumber.length > 16) this.rawCardNumber = this.rawCardNumber.slice(0, 16);
+        this.cardNumber = this.rawCardNumber.replace(/(.{4})/g, '$1 ').trim();
+        this.cardLogo = this.getCardLogo(this.rawCardNumber);
+    } else {
+        this[field] = event.target.value;
     }
+}
 
     // Section: Close the modals
     closeModal() {
@@ -485,67 +540,47 @@ export default class CalendarComponent extends LightningElement {
             this.paymentStatus = event.target.value;
         }
     }
-
     async saveTicket() {
         try {
             if (!this.buyerName || !this.buyerEmail || !this.quantity || !this.ticketType || !this.paymentStatus) {
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Error',
-                        message: 'Please fill in all required fields.',
-                        variant: 'error',
-                    })
-                );
-                return; // Exit if any field is missing
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Please fill in all required fields.',
+                    variant: 'error',
+                }));
+                return;
             }
-    
+        
             const parsedQuantity = parseInt(this.quantity, 10);
-            if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Error',
-                        message: 'Quantity must be a valid positive integer.',
-                        variant: 'error',
-                    })
-                );
-                return; // Exit if quantity is invalid
-            }
-    
             const purchaseDate = new Date();
-    
-            // Call the Apex method to create the ticket
-            await createTicket({
+            const result = await createTicket({
                 buyerName: this.buyerName,
                 buyerEmail: this.buyerEmail,
-                eventId: this.selectedEvent.id,  // Ensure eventId is passed correctly
+                eventId: this.selectedEvent.id,
                 quantity: parsedQuantity,
                 ticketType: this.ticketType,
                 paymentStatus: this.paymentStatus,
                 purchaseDate: purchaseDate
             });
-    
-            // Success notification
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Success',
-                    message: 'Tickets booked successfully!',
-                    variant: 'success',
-                })
-            );
             
-            this.clearFormFields();
+            console.log('Ticket booking result:', result); // Log the result to debug
+            
+            this.selectedTicketId = result.Id;
+            this.totalAmount = result.Total_Amount__c;
+            
+            // Close ticket modal and open payment modal
+            this.isTicketModalOpen = false;
+            this.isPaymentModalOpen = true; // Ensure this is hit
+            console.log('Ticket modal closed, payment modal opened'); // Log for debugging
     
+            this.showToast('Success', 'Tickets booked successfully!', 'success');
         } catch (error) {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Error',
-                    message: error.body.message || 'Error booking tickets.',
-                    variant: 'error',
-                })
-            );
+            this.showToast('Error', 'Error booking tickets.', 'error');
             console.error('Error booking tickets:', error);
         }
     }
+    
+    
     
     // Function to clear the form fields
     clearFormFields() {
@@ -577,7 +612,157 @@ handlePartyEventClick(event) {
 closeModal() {
     this.isModalOpen = false;  // Close the modal
 }
+ 
+getCardLogo(cardNumber) {
+    if (cardNumber.startsWith('4')) return visaLogo;
+    if (cardNumber.startsWith('5') || cardNumber.startsWith('2')) return mastercardLogo;
+    if (cardNumber.startsWith('34') || cardNumber.startsWith('37')) return amexLogo;
+    return defaultLogo;
+}
+
+handleGenerateOTP() {
+    generateAndSendOTP({ email: this.buyerEmail })
+        .then(result => {
+            this.showToast('Success', result, 'success');
+        })
+        .catch(error => {
+            console.error('Error generating OTP:', error);
+            this.showToast('Error', 'Error generating OTP.', 'error');
+        });
+}
+
+handleVerifyOTP() {
+    if (this.otp.length === 6) {
+        verifyOTP({ email: this.buyerEmail, inputOtp: this.otp })
+            .then(result => {
+                this.isOtpValid = result;
+                if (result) {
+                    this.showSubmitButton = true;
+                    this.showToast('Success', 'OTP verified successfully!', 'success');
+                } else {
+                    this.showSubmitButton = false;
+                    this.showToast('Error', 'Invalid OTP or OTP expired.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying OTP:', error);
+                this.showSubmitButton = false;
+                this.showToast('Error', 'Error verifying OTP.', 'error');
+            });
+    } else {
+        this.showToast('Error', 'OTP must be 6 digits.', 'error');
+    }
+}
+
+
+closePaymentModal() {
+    this.isPaymentModalOpen = false;
+}
+
+closeTicketModal() {
+    this.isTicketModalOpen = false;
+}
+
+async handleSubmitPayment() {
+    try {
+        // Ensure that all required fields are provided
+        if (!this.cardNumber || !this.expiryDate || !this.cvv) {
+            throw new Error('Please fill in all required card details');
+        }
+
+        // Prepare payment details with expiry date in DD/MM/YYYY format
+        const paymentDetails = {
+            paymentType: this.paymentType,
+            cardNumber: this.rawCardNumber,
+            expiryDate: this.expiryDate, // Expiry date will now be a full date (YYYY-MM-DD)
+            cvv: this.cvv,
+            upiId: this.upiId,
+            ticketId: this.selectedTicketId
+        };
+
+        // Call the Apex method to save the payment details
+        await savePayment({ paymentDetails });
+
+        // Show success message and close the modal
+        this.showToast('Success', 'Payment processed successfully!', 'success');
+         // Reset the fields after successful payment
+         this.resetFields();
+        this.isPaymentModalOpen = false;
+    } catch (error) {
+        // Show error message with details about the failure
+        this.showToast('Error', `Error processing payment: ${error.message}`, 'error');
+        console.error('Error processing payment:', error);
+    }
+}
+
+
+// Function to show toast messages
+showToast(title, message, variant) {
+    const event = new ShowToastEvent({
+        title: title,
+        message: message,
+        variant: variant,
+        mode: 'dismissable'
+    });
+    this.dispatchEvent(event);
+}
+
+handleOtpInputChange(event) {
+    try {
+        // Validate that input is numeric and has a max length of 6
+        const value = event.target.value.replace(/\D/g, ''); // Remove any non-numeric characters
+        if (value.length <= 6) {
+            this.otp = value; // Store only the first 6 digits
+        }
+        // Remove any previous OTP validation status when the OTP changes
+        this.isOtpValid = false;
+    } catch (error) {
+        console.error('Error in OTP input handling:', error);
+        this.showToast('Error', 'An error occurred while entering the OTP.', 'error');
+    }
+}
+ 
+handlePaymentTypeChange(event) {
+    this.paymentType = event.target.value;
     
-    
+    // Dynamically show/hide fields based on payment type
+    if (this.paymentType === 'Credit Card' || this.paymentType === 'Debit Card') {
+        this.showCardPaymentFields = true;
+        this.showUpiPaymentFields = false;
+    } else if (this.paymentType === 'UPI') {
+        this.showCardPaymentFields = false;
+        this.showUpiPaymentFields = true;
+    } else {
+        this.showCardPaymentFields = false;
+        this.showUpiPaymentFields = false;
+    }
+}
+
+openPaymentModal() {
+    this.buyerName = this.selectedEvent.buyerName;  // Assuming you set buyerName in booking process
+    this.buyerEmail = this.selectedEvent.buyerEmail;  // Assuming you set buyerEmail in booking process
+    this.totalAmount = this.selectedEvent.totalAmount;  // Set total amount from ticket booking
+    this.isPaymentModalOpen = true;  // Open the payment modal
+}
+
+// Function to clear all the form fields (ticket and payment)
+resetFields() {
+    this.buyerName = '';
+    this.buyerEmail = '';
+    this.totalAmount = 0;
+    this.paymentType = '';
+    this.cardNumber = '';
+    this.rawCardNumber = '';
+    this.expiryDate = '';
+    this.cvv = '';
+    this.upiId = '';
+    this.otp = '';
+    this.isOtpValid = false;
+    this.showSubmitButton = false;
+    this.cardLogo = '';
+    this.quantity = 1;
+    this.ticketType = '';
+    this.paymentStatus = '';
+}
     
 }

@@ -4,10 +4,10 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background: linear-gradient(90deg, #1a1a1a, #b8860b); /* Black and gold gradient */
+    background: linear-gradient(135deg, #6a11cb, #2575fc); /* Blue to purple gradient */
     color: white;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Lighter shadow */
 }
 
 .calendar-header-left {
@@ -21,7 +21,7 @@
 
 /* Button styles for view switching */
 .lightning-button-group .slds-button {
-    background-color: #b8860b; /* Gold button background */
+    background-color: #2575fc; /* Blue button background */
     color: white;
     font-weight: bold;
     border-radius: 5px;
@@ -29,12 +29,12 @@
 }
 
 .lightning-button-group .slds-button:hover {
-    background-color: #c0c0c0; /* Silver on hover */
+    background-color: #6a11cb; /* Purple on hover */
     color: black;
 }
 
 .filter-dropdown {
-    background-color: #1a1a1a;
+    background-color: #2575fc;
     border-radius: 5px;
     color: white;
 }
@@ -51,19 +51,19 @@
     margin: 0 20px;
     font-size: 24px;
     font-weight: bold;
-    color: #b8860b; /* Gold for the month name */
-    text-shadow: 2px 2px #c0c0c0; /* Silver shadow effect */
+    color: #6a11cb; /* Purple for the month name */
+    text-shadow: 2px 2px #2575fc; /* Blue shadow effect */
 }
 
 .nav-button {
-    background-color: #b8860b; /* Gold for navigation buttons */
+    background-color: #2575fc; /* Blue for navigation buttons */
     color: white;
     border-radius: 5px;
     padding: 8px 16px;
 }
 
 .nav-button:hover {
-    background-color: #c0c0c0; /* Silver on hover */
+    background-color: #6a11cb; /* Purple on hover */
     color: black;
 }
 
@@ -79,7 +79,7 @@
     text-align: center;
     font-weight: bold;
     padding: 12px 0;
-    background: linear-gradient(45deg, #b8860b, #c0c0c0); /* Gold and silver gradient */
+    background: linear-gradient(45deg, #6a11cb, #2575fc); /* Blue and purple gradient */
     border-bottom: 2px solid #1a1a1a;
     color: white;
     border-radius: 5px;
@@ -88,36 +88,36 @@
 .calendar-day {
     min-height: 120px;
     padding: 12px;
-    border: 1px solid #333;
-    background: linear-gradient(135deg, #1a1a1a, #333); /* Dark background with gradient */
+    border: 1px solid #e0e0e0; /* Light gray */
+    background: linear-gradient(135deg, #f3f4f7, #eef1f6); /* Light background */
     position: relative;
     border-radius: 10px;
     transition: all 0.3s;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
 }
 
 .calendar-day:hover {
-    background: linear-gradient(135deg, #b8860b, #c0c0c0); /* Gold and silver hover effect */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+    background: linear-gradient(135deg, #2575fc, #6a11cb); /* Blue and purple hover effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .today {
-    border: 3px solid #c0c0c0; /* Silver border for today's date */
-    background-color: #333;
+    border: 3px solid #6a11cb; /* Purple border for today's date */
+    background-color: #eef1f6;
 }
 
 .day-number {
     font-size: 22px;
     font-weight: bold;
-    color: #b8860b; /* Gold for the day numbers */
-    text-shadow: 1px 1px #c0c0c0; /* Silver shadow */
+    color: #2575fc; /* Blue for the day numbers */
+    text-shadow: 1px 1px #6a11cb; /* Purple shadow */
 }
 
 /* Event item styles */
 .event-item {
     margin-top: 8px;
-    background-color: #b8860b; /* Gold for events */
-    color: black;
+    background-color: #2575fc; /* Blue for events */
+    color: white;
     padding: 6px;
     border-radius: 10px;
     cursor: pointer;
@@ -128,14 +128,14 @@
 }
 
 .event-item:hover {
-    background-color: #c0c0c0; /* Silver on hover */
+    background-color: #6a11cb; /* Purple on hover */
     transform: scale(1.05);
 }
 
 /* Custom Modal Header */
 .custom-modal-header {
-    background-color: #1a1a1a;
-    color: #b8860b;
+    background-color: #f0f0f0;
+    color: #2575fc;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -146,22 +146,23 @@
 .custom-modal-body {
     padding: 1rem;
     font-size: 16px;
-    color: white;
-    background-color: #333;
+    color: #333;
+    background-color: #f9f9f9;
 }
 
 .custom-modal-footer {
     padding: 1rem;
-    background-color: #1a1a1a;
+    background-color: #f0f0f0;
     display: flex;
     justify-content: flex-end;
 }
 
+/* Modal section */
 .modal-section {
     display: flex;
     align-items: center;
     margin-bottom: 1rem;
-    color: white;
+    color: #333;
 }
 
 .modal-section lightning-icon {
@@ -169,14 +170,14 @@
 }
 
 .custom-close-button {
-    background-color: #b8860b; /* Gold close button */
+    background-color: #6a11cb; /* Purple close button */
     color: white;
     border-radius: 5px;
     font-size: 14px;
 }
 
 .custom-close-button:hover {
-    background-color: #c0c0c0; /* Silver on hover */
+    background-color: #2575fc; /* Blue on hover */
 }
 
 .slds-modal__container {
@@ -184,53 +185,51 @@
     width: 100%;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .slds-backdrop_open {
     z-index: 8000;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 /* Form element labels */
-/* Specifically targeting labels for lightning-input */
 .slds-form-element__label {
-    color: #b8860b !important; /* Gold label color */
+    color: #2575fc !important; /* Blue label color */
     font-weight: bold;
 }
 
-/* Ensure the input fields still match the theme */
-.lightning-input input, 
-.lightning-input-rich-text, 
-.lightning-combobox, 
-.lightning-datepicker input, 
+/* Input fields */
+.lightning-input input,
+.lightning-input-rich-text,
+.lightning-combobox,
+.lightning-datepicker input,
 .lightning-timepicker input {
-    background-color: #1a1a1a; /* Dark background for inputs */
-    color: #ffffff; /* White text for input fields */
-    border: 1px solid #b8860b; /* Gold border for input fields */
+    background-color: #f0f0f0; /* Light background for inputs */
+    color: #333;
+    border: 1px solid #2575fc; /* Blue border for input fields */
     border-radius: 5px;
 }
 
 /* Placeholder text styling */
-.lightning-input input::placeholder, 
-.lightning-input-rich-text::placeholder, 
-.lightning-combobox::placeholder, 
-.lightning-datepicker input::placeholder, 
+.lightning-input input::placeholder,
+.lightning-input-rich-text::placeholder,
+.lightning-combobox::placeholder,
+.lightning-datepicker input::placeholder,
 .lightning-timepicker input::placeholder {
-    color: #c0c0c0; /* Silver placeholder text */
+    color: #6a11cb; /* Purple placeholder text */
 }
 
-.slds-m-bottom_medium{
-    color: #b8860b !important; /* Gold label color */
+.slds-m-bottom_medium {
+    color: #2575fc !important; /* Blue label color */
     font-weight: bold;
 }
 
 .custom-label {
-    color: #b8860b; /* Gold color */
+    color: #2575fc; /* Blue color */
     font-weight: bold;
-    display: block;  /* To ensure it displays as a block element */
+    display: block; /* Ensures it displays as a block element */
 }
-
 
 /* JS Animation effects */
 @keyframes pulse {
@@ -254,48 +253,195 @@
 }
 
 .nav-button:hover {
-    box-shadow: 0px 0px 10px 5px #b8860b; /* Gold glow effect on hover */
+    box-shadow: 0px 0px 10px 5px #2575fc; /* Blue glow effect on hover */
 }
 
 .filter-dropdown lightning-combobox {
-    --slds-c-input-text-color: white; /* Sets the text color to white */
-    --slds-c-input-background-color: #333333; /* Dark background for dropdown */
-    --slds-c-input-placeholder-color: #b3b3b3; /* Light grey for placeholder text */
-    --slds-c-input-border-color: #ffd700; /* Gold border to match the theme */
-    font-size: 16px; /* Adjust font size for better readability */
+    --slds-c-input-text-color: white;
+    --slds-c-input-background-color: #f0f0f0;
+    --slds-c-input-placeholder-color: #2575fc;
+    --slds-c-input-border-color: #6a11cb;
+    font-size: 16px;
     padding: 8px;
     border-radius: 5px;
-    margin-right: 20px; /* Shift the dropdown towards left */
+    margin-right: 20px;
 }
 
-.filter-dropdown  {
-    background-color: #b8860b; /* Gold background for the overall dropdown container */
+.filter-dropdown {
+    background-color: #2575fc; /* Blue dropdown */
     padding: 10px;
     border-radius: 5px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
-    margin-right: 50px; /* Adjust to shift it left and fit the screen */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-right: 50px;
 }
 
-/* Styling for the options list */
+/* Dropdown options */
 .slds-dropdown__list {
-    background-color: #1f1f1f; /* Dark background for dropdown options */
-    border: 1px solid #ffd700; /* Gold border to match the theme */
-    color: white; /* White text for better visibility */
+    background-color: #f0f0f0;
+    border: 1px solid #2575fc;
+    color: #333;
 }
 
 .slds-dropdown__item {
     padding: 10px;
     font-size: 15px;
-    border-bottom: 1px solid #ffd700; /* Gold border between options */
+    border-bottom: 1px solid #2575fc;
 }
 
 .slds-dropdown__item:hover {
-    background-color: #333333; /* Darker grey on hover */
-    color: #ffd700; /* Gold text color on hover */
+    background-color: #eef1f6;
+    color: #2575fc; /* Blue text on hover */
     cursor: pointer;
 }
 
-.custom-label-color{
-    color: goldenrod; /* Gold color */
+/* Modal wrapper and backdrop */
+.payment-modal-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    background-color: rgba(0, 0, 0, 0.5);
+}
 
+/* Modal styling */
+.payment-modal {
+    background-color: white;
+    width: 650px;
+    max-width: 90%;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Header styling */
+.payment-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2575fc;
+    color: white;
+    border-radius: 10px 10px 0 0;
+}
+
+.payment-modal-title {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.payment-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: white;
+    cursor: pointer;
+}
+
+/* Body styling */
+.payment-modal-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 15px;
+}
+
+/* Input field styling */
+.payment-input-field {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Card details */
+.card-details-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 15px;
+    align-items: end;
+}
+
+.card-number-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.card-number-input {
+    width: 90%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.card-logo-container {
+    margin-left: 10px;
+}
+
+.card-logo {
+    width: 40px;
+    height: auto;
+    pointer-events: none;
+}
+
+/* Submit button */
+.payment-submit-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #2575fc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.payment-submit-button:hover {
+    background-color: #6a11cb;
+}
+
+.payment-button {
+    background-color: #2575fc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin: 0 5px;
+}
+
+.payment-button:hover {
+    background-color: #6a11cb;
+    transform: scale(1.03);
+}
+
+.payment-button:disabled {
+    background-color: #b0bec5;
+    cursor: not-allowed;
+}
+
+.generate-otp-button {
+    background-color: #4CAF50;
+}
+
+.generate-otp-button:hover {
+    background-color: #66BB6A;
+}
+
+.verify-otp-button {
+    background-color: #F57C00;
+}
+
+.verify-otp-button:hover {
+    background-color: #FF9800;
 }
