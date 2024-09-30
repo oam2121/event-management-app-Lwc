@@ -4,32 +4,27 @@ import updateEventDate from '@salesforce/apex/CalendarController.updateEventDate
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import LightningAlert from 'lightning/alert';
 import createEvent from '@salesforce/apex/CalendarController.createEvent';
-import submitRSVP from '@salesforce/apex/RSVPController.submitRSVP';
-import searchEvents from '@salesforce/apex/EventController.searchEvents';
+import submitRSVP from '@salesforce/apex/RSVPController.submitRSVP';  // <-- Make sure this import is present
+import searchEvents from '@salesforce/apex/EventController.searchEvents'; // Fetch the filtered events by search
 
 export default class CalendarComponent extends LightningElement {
-    // Modal control variables
-    @track isCreateModalOpen = false;
-    @track isModalOpen = false;
+    // Section: Track variables for modal, events, calendar, and filtering
+    @track isCreateModalOpen = false; // Controls the visibility of the create event modal
+    @track isModalOpen = false; // Controls the visibility of the event details modal
+    @track newEvent = {}; // Holds the new event details for creation
+    @track selectedEvent = {}; // Holds the selected event details for the event details modal
+    @track calendarDays = []; // Holds the calendar grid data
+    @track formattedMonthYear = ''; // Holds the formatted month and year for the calendar header
+    @track events = []; // Stores all events fetched from the Apex controller
+    @track filteredEvents = []; // Stores the filtered events after a search
+    @track selectedEventType = 'All'; // Tracks the selected event type for filtering
+    @track selectedView = 'Monthly'; // Default view is Monthly
     @track isRSVPModalOpen = false;
-
-    // Event and RSVP-related variables
-    @track newEvent = {}; // Holds data for new events
-    @track selectedEvent = {}; // Holds selected event details for the modal
-    @track events = []; // Stores all events
-    @track filteredEvents = []; // Stores filtered events after a search
-    @track newEventId = ''; // Stores the event ID after creation
     @track attendeeName = '';
     @track attendeeEmail = '';
     @track attendeePhone = '';
-
-    // Calendar-related variables
-    @track calendarDays = [];
-    @track formattedMonthYear = '';
-    @track selectedView = 'Monthly'; // Default calendar view
-    @track selectedEventType = 'All'; // Default event type for filtering
-
-    // Event types and recurrence options
+    @track meetingLink
+    newEventId = '';  // To store the new event Id after creating it
     @track eventTypes = [
         { label: 'All', value: 'All' },
         { label: 'Webinar', value: 'Webinar' },
@@ -44,17 +39,15 @@ export default class CalendarComponent extends LightningElement {
         { label: 'Weekly', value: 'Weekly' },
         { label: 'Monthly', value: 'Monthly' }
     ];
+    
 
-    // Date tracking for navigation
-    currentMonth = new Date().getMonth();
-    currentYear = new Date().getFullYear();
-    currentDay = new Date().getDate();
-    today = new Date(); // Tracks today's date
+    draggedEvent = null; // Holds the event that is being dragged for date change
 
-    // Dragged event for handling drag-and-drop functionality
-    draggedEvent = null;
+    currentMonth = new Date().getMonth(); // Tracks the current month for the calendar
+    currentYear = new Date().getFullYear(); // Tracks the current year for the calendar
+    currentDay = new Date().getDate(); // Tracks the current day for daily view
 
-    // Color mapping for event types
+    // Section: Color mapping for different event types
     eventColors = {
         Webinar: 'background-color: #ff4c4c; color: white;',
         Workshop: 'background-color: #4caf50; color: white;',
@@ -67,11 +60,14 @@ export default class CalendarComponent extends LightningElement {
     // Lifecycle hook: Runs when the component is inserted into the DOM
     connectedCallback() {
         this.loadEvents();
+        this.today = new Date();
     }
 
-    /**
-     * Fetches events from the server and stores them in `events` and `filteredEvents`.
-     */
+    getDayClass(day) {
+        return `calendar-day ${day.isToday ? 'today' : ''}`;
+    }
+    
+
     async loadEvents() {
         try {
             const data = await getEvents();
@@ -82,20 +78,19 @@ export default class CalendarComponent extends LightningElement {
                 startDate: new Date(event.Event_Start_Date__c),
                 endDate: event.Event_End_Date__c,
                 description: event.Event_Description__c,
-                location: event.Location__c,
-                meetingLink: event.Meeting_Link__c,
+                location: event.Location__c,  // Ensure location is populated here
+                meetingLink: event.Meeting_Link__c,  // Ensure meeting link is populated here
                 style: this.eventColors[event.Event_Type__c] || this.eventColors.default
             }));
-            this.filteredEvents = this.events; // Initially, show all events
-            this.generateCalendar(); // Generate the calendar view
+            
+            this.filteredEvents = this.events; // Initially show all events
+            this.generateCalendar(); // Generate the calendar after loading events
         } catch (error) {
             console.error('Error loading events:', error);
         }
     }
+    
 
-    /**
-     * Generates the calendar based on the selected view (Daily, Weekly, or Monthly).
-     */
     generateCalendar() {
         if (this.selectedView === 'Daily') {
             this.generateDailyView();
@@ -105,10 +100,9 @@ export default class CalendarComponent extends LightningElement {
             this.generateMonthlyView(new Date(this.currentYear, this.currentMonth));
         }
     }
+    
 
-    /**
-     * Generates a daily view for the calendar.
-     */
+    // Section: Daily view generation
     generateDailyView() {
         const currentDate = new Date(this.currentYear, this.currentMonth, this.currentDay);
         const eventsForDay = this.getFilteredEventsForDay(currentDate);
@@ -120,12 +114,10 @@ export default class CalendarComponent extends LightningElement {
         }];
     }
 
-    /**
-     * Generates a weekly view for the calendar.
-     */
+    // Section: Weekly view generation
     generateWeeklyView() {
         const currentDate = new Date(this.currentYear, this.currentMonth, this.currentDay);
-        const startOfWeek = currentDate.getDate() - currentDate.getDay();
+        const startOfWeek = currentDate.getDate() - currentDate.getDay(); // Get the Sunday of the current week
         let daysArray = [];
 
         for (let i = 0; i < 7; i++) {
@@ -141,37 +133,32 @@ export default class CalendarComponent extends LightningElement {
 
         this.calendarDays = daysArray;
     }
-
-    /**
-     * Generates a monthly view for the calendar.
-     * @param {Date} currentDate - The date representing the current month.
-     */
     generateMonthlyView(currentDate) {
         const currentMonth = currentDate.getMonth();
         const currentYear = currentDate.getFullYear();
         this.currentMonth = currentMonth;
         this.currentYear = currentYear;
-
+    
         const firstDay = new Date(currentYear, currentMonth, 1);
         const lastDay = new Date(currentYear, currentMonth + 1, 0);
         const options = { year: 'numeric', month: 'long' };
         this.formattedMonthYear = new Intl.DateTimeFormat('en-US', options).format(firstDay);
-
+    
         let daysArray = [];
-
+    
         // Add empty slots for days before the first day of the month
         for (let i = 0; i < firstDay.getDay(); i++) {
             daysArray.push({ formattedDate: '', events: [], isToday: false, dayClass: 'calendar-day' });
         }
-
+    
         // Loop through all days of the month
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const date = new Date(currentYear, currentMonth, day);
             const eventsForDay = this.getFilteredEventsForDay(date);
-
+    
             // Check if the current date is today
             const isToday = this.isSameDay(date, this.today);
-
+    
             daysArray.push({
                 formattedDate: day,
                 events: eventsForDay,
@@ -180,26 +167,40 @@ export default class CalendarComponent extends LightningElement {
                 dayClass: isToday ? 'calendar-day today' : 'calendar-day'
             });
         }
-
+    
         this.calendarDays = daysArray;
     }
+    
 
-    // Filtering and Search Handling
+    // Section: Retrieve events for a specific day based on filtered results
+    getFilteredEventsForDay(date) {
+        return this.filteredEvents.filter(event => {
+            const eventDate = new Date(event.startDate);
+            return (
+                eventDate.getDate() === date.getDate() &&
+                eventDate.getMonth() === date.getMonth() &&
+                eventDate.getFullYear() === date.getFullYear()
+            );
+        });
+    }
+
     handleFilterChange(event) {
         this.selectedEventType = event.detail.value;
+        this.applySearchAndFilter(); // Apply filtering when event type is changed
+    }
+    handleSearch() {
+        // Apply search logic directly
         this.applySearchAndFilter();
     }
-
-    handleSearchInput(event) {
-        this.searchInputValue = event.target.value.trim().toLowerCase();
-        this.applySearchAndFilter();
-    }
-
+    
+    
     async handleSearchResults(event) {
         const searchEventName = event.detail.eventName.toLowerCase();
         if (searchEventName) {
             try {
                 const result = await searchEvents({ eventName: searchEventName });
+    
+                // Ensure the result is valid
                 if (result && result.length > 0) {
                     this.filteredEvents = result.map(event => ({
                         id: event.Id,
@@ -211,7 +212,8 @@ export default class CalendarComponent extends LightningElement {
                 } else {
                     this.filteredEvents = []; // No events found
                 }
-                this.generateCalendar();
+    
+                this.generateCalendar(); // Apply search results to the calendar
             } catch (error) {
                 console.error('Error searching events:', error);
             }
@@ -220,157 +222,16 @@ export default class CalendarComponent extends LightningElement {
             this.generateCalendar();
         }
     }
+    
 
-    applySearchAndFilter() {
-        let filtered = this.events;
-
-        // Filter by event type
-        if (this.selectedEventType !== 'All') {
-            filtered = filtered.filter(event => event.type === this.selectedEventType);
-        }
-
-        // Apply search filter
-        if (this.searchInputValue) {
-            filtered = filtered.filter(event => event.name.toLowerCase().includes(this.searchInputValue));
-        }
-
-        this.filteredEvents = filtered;
-        this.generateCalendar();
-    }
-
-    // Event Creation and RSVP Handling
-    async saveNewEvent() {
-        try {
-            const { eventName, eventDescription, eventType, location, maxAttendees, meetingLink, recurrence } = this.newEvent;
-            const startDate = new Date(`${this.newEvent.startDate}T${this.newEvent.startTime || '00:00'}`);
-            const endDate = new Date(`${this.newEvent.endDate}T${this.newEvent.endTime || '23:59'}`);
-
-            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-                await LightningAlert.open({
-                    message: 'Invalid start or end date/time',
-                    theme: 'error',
-                    label: 'Validation Error',
-                });
-                return;
-            }
-
-            const createdEventId = await createEvent({
-                eventName,
-                eventDescription,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                eventType,
-                location,
-                maxAttendees: parseInt(maxAttendees, 10),
-                meetingLink,
-                recurrence
-            });
-
-            this.newEventId = createdEventId;
-            this.showToast('Success', 'Event created successfully!', 'success');
-
-            this.isCreateModalOpen = false;
-            this.isRSVPModalOpen = true; // Open RSVP modal after event creation
-            this.loadEvents(); // Reload the events without refreshing the page
-        } catch (error) {
-            this.showToast('Error creating event', error.message || 'Unknown error occurred', 'error');
-        }
-    }
-
-    async submitRSVP(addAnother = false) {
-        try {
-            if (!this.attendeeName || !this.attendeeEmail || !this.attendeePhone) {
-                throw new Error('All RSVP fields are required');
-            }
-
-            await submitRSVP({
-                eventId: this.newEventId,
-                attendeeName: this.attendeeName,
-                attendeeEmail: this.attendeeEmail,
-                attendeePhone: this.attendeePhone
-            });
-
-            this.showToast('Success', 'RSVP submitted successfully!', 'success');
-
-            if (addAnother) {
-                this.clearRSVPForm();
-            } else {
-                this.closeRSVPModal();
-            }
-        } catch (error) {
-            this.showToast('Error submitting RSVP', error.message || 'Unknown error occurred', 'error');
-        }
-    }
-
-    submitRSVPAddAnother() {
-        this.submitRSVP(true);
-    }
-
-    clearRSVPForm() {
-        this.attendeeName = '';
-        this.attendeeEmail = '';
-        this.attendeePhone = '';
-    }
-
-    closeRSVPModal() {
-        this.isRSVPModalOpen = false;
-        this.clearRSVPForm();
-        window.location.reload(); // Reload the page after closing the RSVP modal
-    }
-
-    // Utility Functions
-    showToast(title, message, variant) {
-        this.dispatchEvent(new ShowToastEvent({
-            title,
-            message,
-            variant
-        }));
-    }
-
-    formatDateToLocal(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
+    // Section: Check if two dates are the same
     isSameDay(date1, date2) {
         return date1.getDate() === date2.getDate() &&
                date1.getMonth() === date2.getMonth() &&
                date1.getFullYear() === date2.getFullYear();
     }
 
-    // Calendar Navigation
-    previousMonth() {
-        if (this.selectedView === 'Monthly') {
-            this.generateMonthlyView(new Date(this.currentYear, this.currentMonth - 1));
-        } else if (this.selectedView === 'Weekly') {
-            this.currentDay -= 7;
-            this.generateWeeklyView();
-        } else {
-            this.currentDay -= 1;
-            this.generateDailyView();
-        }
-    }
-
-    nextMonth() {
-        if (this.selectedView === 'Monthly') {
-            this.generateMonthlyView(new Date(this.currentYear, this.currentMonth + 1));
-        } else if (this.selectedView === 'Weekly') {
-            this.currentDay += 7;
-            this.generateWeeklyView();
-        } else {
-            this.currentDay += 1;
-            this.generateDailyView();
-        }
-    }
-
-    switchView(event) {
-        this.selectedView = event.target.dataset.view;
-        this.generateCalendar();
-    }
-
-    // Drag and Drop Handlers
+    // Section: Handle drag and drop
     handleDragStart(event) {
         const eventId = event.target.dataset.id;
         this.draggedEvent = this.events.find(evt => evt.id === eventId);
@@ -392,8 +253,14 @@ export default class CalendarComponent extends LightningElement {
 
                 updateEventDate({ eventId: this.draggedEvent.id, newStartDate: formattedDate })
                     .then(() => {
-                        this.showToast('Success', 'Event moved successfully!', 'success');
-                        this.loadEvents(); // Reload events after moving one
+                        this.dispatchEvent(
+                            new ShowToastEvent({
+                                title: 'Success',
+                                message: 'Event moved successfully!',
+                                variant: 'success'
+                            })
+                        );
+                        window.location.reload(); // Reload to reflect changes
                     })
                     .catch(error => {
                         console.error('Error updating event date:', error);
@@ -408,7 +275,214 @@ export default class CalendarComponent extends LightningElement {
         event.preventDefault();
     }
 
-    // Modal Handlers
+    // Section: Handle opening the event creation modal
+    handleDayClick(event) {
+        const clickedDate = event.target.closest('.calendar-day').dataset.date;
+        this.newEvent = { startDate: clickedDate };
+        this.isCreateModalOpen = true;
+    }
+
+
+    handleSearchInput(event) {
+        this.searchInputValue = event.target.value.trim().toLowerCase();
+        this.applySearchAndFilter();
+    }
+    
+    
+
+    applySearchAndFilter() {
+        let filtered = this.events;
+    
+        // Filter by event type
+        if (this.selectedEventType !== 'All') {
+            filtered = filtered.filter(event => event.type === this.selectedEventType);
+        }
+    
+        // Apply search filter
+        if (this.searchInputValue) {
+            filtered = filtered.filter(event =>
+                event.name.toLowerCase().includes(this.searchInputValue)
+            );
+        }
+    
+        // Set filtered events and generate the calendar
+        this.filteredEvents = filtered;
+        this.generateCalendar();
+    }
+    
+    async saveNewEvent() {
+        try {
+            // Validate and ensure startDate and endDate exist
+            if (!this.newEvent.startDate) {
+                await LightningAlert.open({
+                    message: 'Start date is required',
+                    theme: 'error',
+                    label: 'Validation Error',
+                });
+                return;
+            }
+    
+            if (!this.newEvent.endDate) {
+                await LightningAlert.open({
+                    message: 'End date is required',
+                    theme: 'error',
+                    label: 'Validation Error',
+                });
+                return;
+            }
+    
+            const startTime = this.newEvent.startTime || '00:00';
+            const endTime = this.newEvent.endTime || '23:59';
+            const startDate = new Date(`${this.newEvent.startDate}T${startTime}`);
+            const endDate = new Date(`${this.newEvent.endDate}T${endTime}`);
+    
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                await LightningAlert.open({
+                    message: 'Invalid start or end date/time',
+                    theme: 'error',
+                    label: 'Validation Error',
+                });
+                return;
+            }
+    
+            const { eventName, eventDescription, eventType, location, maxAttendees, meetingLink, recurrence } = this.newEvent;
+    
+            const createdEventId = await createEvent({
+                eventName,
+                eventDescription,
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                eventType,
+                location,
+                maxAttendees: parseInt(maxAttendees, 10),
+                meetingLink, 
+                recurrence  // Ensure recurrence field is passed correctly
+            });
+    
+            this.newEventId = createdEventId;  // Store the event ID for RSVP submission
+    
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Success',
+                    message: 'Event created successfully!',
+                    variant: 'success',
+                })
+            );
+    
+            // Open RSVP modal after event creation
+            this.isCreateModalOpen = false;
+            this.isRSVPModalOpen = true;  // Open the RSVP modal to collect attendee info
+    
+            this.loadEvents(); // Reload the events without reloading the page
+    
+        } catch (error) {
+            console.error('Error creating event:', error);
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error creating event',
+                    message: error.message || 'Unknown error occurred',
+                    variant: 'error',
+                })
+            );
+        }
+    }
+    
+    
+    // Submit RSVP and clear the form for another entry
+async submitRSVP(addAnother = false) {
+    try {
+        if (!this.attendeeName || !this.attendeeEmail || !this.attendeePhone) {
+            throw new Error('All RSVP fields are required');
+        }
+
+        await submitRSVP({
+            eventId: this.newEventId,
+            attendeeName: this.attendeeName,
+            attendeeEmail: this.attendeeEmail,
+            attendeePhone: this.attendeePhone,
+        });
+
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Success',
+                message: 'RSVP submitted successfully!',
+                variant: 'success',
+            })
+        );
+
+        if (addAnother) {
+            // Clear the form but keep the modal open for adding another attendee
+            this.clearRSVPForm();
+        } else {
+      
+            this.closeRSVPModal();
+           
+
+        }
+
+    } catch (error) {
+        console.error('Error submitting RSVP:', error);
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error submitting RSVP',
+                message: error.message || 'Unknown error occurred',
+                variant: 'error',
+            })
+        );
+    }
+}
+
+
+    // New helper method for adding another attendee
+submitRSVPAddAnother() {
+    this.submitRSVP(true);
+}
+
+// Method to clear the RSVP form
+clearRSVPForm() {
+    this.attendeeName = '';
+    this.attendeeEmail = '';
+    this.attendeePhone = '';
+}
+
+
+
+    // Handle input changes for RSVP modal
+    handleInputChange(event) {
+        const field = event.target.name;
+        if (field === 'attendeeName') {
+            this.attendeeName = event.target.value;
+        } else if (field === 'attendeeEmail') {
+            this.attendeeEmail = event.target.value;
+        } else if (field === 'attendeePhone') {
+            this.attendeePhone = event.target.value;
+        } else {
+            this.newEvent[field] = event.target.value;
+        }
+    }
+
+// Close RSVP modal and refresh the page
+closeRSVPModal() {
+    this.isRSVPModalOpen = false;
+    this.clearRSVPForm(); // Clear the form when closing the modal
+
+    // Trigger a page reload when the modal is closed
+    window.location.reload();
+}
+
+
+    getFilteredEventsForDay(date) {
+        return this.filteredEvents.filter(event => {
+            const eventDate = new Date(event.startDate);
+            return (
+                eventDate.getDate() === date.getDate() &&
+                eventDate.getMonth() === date.getMonth() &&
+                eventDate.getFullYear() === date.getFullYear()
+            );
+        });
+    }
+    
+    // Section: Close the modals
     closeModal() {
         this.isModalOpen = false;
     }
@@ -417,9 +491,51 @@ export default class CalendarComponent extends LightningElement {
         this.isCreateModalOpen = false;
     }
 
+    // Section: Handle event click to open event details modal
     handleEventClick(event) {
         const eventId = event.target.dataset.id;
         this.selectedEvent = this.events.find(evt => evt.id === eventId);
         this.isModalOpen = true;
+    }
+
+    // Utility: Format date to 'YYYY-MM-DD'
+    formatDateToLocal(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Section: Navigation for previous and next months/days/weeks
+    previousMonth() {
+        if (this.selectedView === 'Monthly') {
+            const currentDate = new Date(this.currentYear, this.currentMonth - 1, 1);
+            this.generateMonthlyView(currentDate);
+        } else if (this.selectedView === 'Weekly') {
+            this.currentDay -= 7;  // Move back one week
+            this.generateWeeklyView();
+        } else if (this.selectedView === 'Daily') {
+            this.currentDay -= 1;  // Move back one day
+            this.generateDailyView();
+        }
+    }
+
+    nextMonth() {
+        if (this.selectedView === 'Monthly') {
+            const currentDate = new Date(this.currentYear, this.currentMonth + 1, 1);
+            this.generateMonthlyView(currentDate);
+        } else if (this.selectedView === 'Weekly') {
+            this.currentDay += 7;  // Move forward one week
+            this.generateWeeklyView();
+        } else if (this.selectedView === 'Daily') {
+            this.currentDay += 1;  // Move forward one day
+            this.generateDailyView();
+        }
+    }
+
+    // Section: Switch between Daily, Weekly, and Monthly views
+    switchView(event) {
+        this.selectedView = event.target.dataset.view;
+        this.generateCalendar();  // Re-generate the calendar for the new view
     }
 }

@@ -74,19 +74,26 @@ public with sharing class EventController {
      * @param newEndDate The new end date as a string
      */
     @AuraEnabled
-    public static void updateEventDate(Id eventId, String newStartDate, String newEndDate) {
-        // Convert start and end date strings to Datetime
-        Datetime newStart = Datetime.valueOf(newStartDate);
-        Datetime newEnd = Datetime.valueOf(newEndDate);
+public static void updateEventDate(Id eventId, String newStartDate, String newEndDate) {
+    // Get the current user Id
+    String userId = UserInfo.getUserId();
 
-        // Fetch the event record to update its dates
-        Event__c eventToUpdate = [SELECT Id, Event_Start_Date__c, Event_End_Date__c FROM Event__c WHERE Id = :eventId LIMIT 1];
-        eventToUpdate.Event_Start_Date__c = newStart;
-        eventToUpdate.Event_End_Date__c = newEnd;
+    // Convert start and end date strings to Datetime
+    Datetime newStart = Datetime.valueOf(newStartDate);
+    Datetime newEnd = Datetime.valueOf(newEndDate);
 
-        // Update the event record
-        update eventToUpdate;
-    }
+    // Fetch the event record, but only if it belongs to the logged-in user
+    Event__c eventToUpdate = [SELECT Id, Event_Start_Date__c, Event_End_Date__c 
+                             FROM Event__c 
+                             WHERE Id = :eventId 
+                             AND CreatedById = :userId
+                             LIMIT 1];
+    eventToUpdate.Event_Start_Date__c = newStart;
+    eventToUpdate.Event_End_Date__c = newEnd;
+
+    // Update the event record
+    update eventToUpdate;
+}
 
     /**
      * Searches for events based on a partial match of the event name.
@@ -115,11 +122,16 @@ public with sharing class EventController {
      * @param eventId The ID of the event to delete
      */
     @AuraEnabled
-    public static void deleteEvent(Id eventId) {
-        // Fetch the event record to delete
-        Event__c eventToDelete = [SELECT Id FROM Event__c WHERE Id = :eventId];
-        
-        // Delete the event record
-        delete eventToDelete;
-    }
+public static void deleteEvent(Id eventId) {
+    // Get the current user Id
+    String userId = UserInfo.getUserId();
+
+    // Fetch the event record to delete, but only if it belongs to the logged-in user
+    Event__c eventToDelete = [SELECT Id FROM Event__c 
+                             WHERE Id = :eventId 
+                             AND CreatedById = :userId];
+    
+    // Delete the event record
+    delete eventToDelete;
+}
 }

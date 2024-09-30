@@ -8,12 +8,20 @@ public with sharing class RSVPController {
      */
     @AuraEnabled(cacheable=true)
     public static List<Attendee__c> getAttendeesForEvent(Id eventId) {
+        // Get the current user's Id
+        String userId = UserInfo.getUserId();
+    
+        // Ensure the event is created by the logged-in user before fetching attendees
+        Event__c event = [SELECT Id FROM Event__c WHERE Id = :eventId AND CreatedById = :userId LIMIT 1];
+    
+        // Fetch attendees if the event belongs to the logged-in user
         return [
             SELECT Id, Name__c, Email__c, Phone__c, RSVP_Status__c 
             FROM Attendee__c 
             WHERE Event__c = :eventId
         ];
     }
+    
 
     /**
      * Toggles the RSVP status of an attendee between 'Registered' and 'Cancelled'.
@@ -21,26 +29,36 @@ public with sharing class RSVPController {
      * @param attendeeId The ID of the attendee to update.
      */
     @AuraEnabled
-    public static void toggleRSVPStatus(Id attendeeId) {
-        try {
-            // Fetch the attendee record
-            Attendee__c attendee = [SELECT Id, RSVP_Status__c FROM Attendee__c WHERE Id = :attendeeId LIMIT 1];
+public static void toggleRSVPStatus(Id attendeeId) {
+    try {
+        String userId = UserInfo.getUserId();
+        
+        // Fetch the attendee and event details
+        Attendee__c attendee = [SELECT Id, RSVP_Status__c, Event__c, Email__c 
+                                FROM Attendee__c 
+                                WHERE Id = :attendeeId LIMIT 1];
+        Event__c event = [SELECT CreatedById FROM Event__c WHERE Id = :attendee.Event__c LIMIT 1];
 
-            // Toggle between 'Cancelled' and 'Registered'
-            if (attendee.RSVP_Status__c == 'Cancelled') {
-                attendee.RSVP_Status__c = 'Registered';
-            } else {
-                attendee.RSVP_Status__c = 'Cancelled';
-            }
-
-            // Update the attendee record with the new status
-            update attendee;
-
-        } catch (Exception e) {
-            // Handle errors and provide a user-friendly message
-            throw new AuraHandledException('Error updating RSVP status: ' + e.getMessage());
+        // Ensure the user is either the event creator or the attendee themselves
+        if (userId != event.CreatedById && attendee.Email__c != [SELECT Email FROM User WHERE Id = :userId].Email) {
+            throw new AuraHandledException('You are not authorized to update this RSVP.');
         }
+
+        // Toggle RSVP status
+        if (attendee.RSVP_Status__c == 'Cancelled') {
+            attendee.RSVP_Status__c = 'Registered';
+        } else {
+            attendee.RSVP_Status__c = 'Cancelled';
+        }
+
+        // Update the attendee record
+        update attendee;
+
+    } catch (Exception e) {
+        throw new AuraHandledException('Error updating RSVP status: ' + e.getMessage());
     }
+}
+
 
     /**
      * Deletes an RSVP for an attendee and decrements the allocated seats for the event.
@@ -48,25 +66,33 @@ public with sharing class RSVPController {
      * @param attendeeId The ID of the attendee to delete.
      */
     @AuraEnabled
-    public static void deleteRSVP(Id attendeeId) {
-        try {
-            // Fetch the attendee and associated event
-            Attendee__c attendee = [SELECT Id, Event__c FROM Attendee__c WHERE Id = :attendeeId LIMIT 1];
-            Event__c event = [SELECT Id, Seats_Allocated__c FROM Event__c WHERE Id = :attendee.Event__c LIMIT 1];
+public static void deleteRSVP(Id attendeeId) {
+    try {
+        String userId = UserInfo.getUserId();
 
-            // Decrement the Seats_Allocated__c if it's greater than 0
-            if (event.Seats_Allocated__c > 0) {
-                event.Seats_Allocated__c -= 1;
-            }
+        // Fetch the attendee and associated event
+        Attendee__c attendee = [SELECT Id, Event__c, Email__c FROM Attendee__c WHERE Id = :attendeeId LIMIT 1];
+        Event__c event = [SELECT Id, Seats_Allocated__c, CreatedById FROM Event__c WHERE Id = :attendee.Event__c LIMIT 1];
 
-            // Delete the attendee record and update the event
-            delete attendee;
-            update event;
-
-        } catch (Exception e) {
-            throw new AuraHandledException('Error deleting RSVP: ' + e.getMessage());
+        // Ensure the user is either the event creator or the attendee themselves
+        if (userId != event.CreatedById && attendee.Email__c != [SELECT Email FROM User WHERE Id = :userId].Email) {
+            throw new AuraHandledException('You are not authorized to delete this RSVP.');
         }
+
+        // Decrement the Seats_Allocated__c
+        if (event.Seats_Allocated__c > 0) {
+            event.Seats_Allocated__c -= 1;
+        }
+
+        // Delete the attendee record and update the event
+        delete attendee;
+        update event;
+
+    } catch (Exception e) {
+        throw new AuraHandledException('Error deleting RSVP: ' + e.getMessage());
     }
+}
+
 
     /**
      * Submits a new RSVP for an attendee and sends a confirmation email.
@@ -131,12 +157,17 @@ public with sharing class RSVPController {
      * @return A list of Event__c records with a start date from today onward.
      */
     @AuraEnabled(cacheable=true)
-    public static List<Event__c> getEvents() {
-        try {
-            // Query to fetch events that have a start date from today onward
-            return [SELECT Id, Event_Name__c FROM Event__c WHERE Event_Start_Date__c >= TODAY];
-        } catch (Exception e) {
-            throw new AuraHandledException('Error fetching events: ' + e.getMessage());
-        }
+public static List<Event__c> getEvents() {
+    String userId = UserInfo.getUserId();
+    try {
+        // Query to fetch events created by the logged-in user that start from today onward
+        return [SELECT Id, Event_Name__c 
+                FROM Event__c 
+                WHERE Event_Start_Date__c >= TODAY 
+                AND CreatedById = :userId];
+    } catch (Exception e) {
+        throw new AuraHandledException('Error fetching events: ' + e.getMessage());
     }
+}
+
 }

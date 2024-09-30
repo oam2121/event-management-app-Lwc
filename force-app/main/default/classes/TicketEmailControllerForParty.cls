@@ -40,11 +40,19 @@ public with sharing class TicketEmailControllerForParty {
      * @return The Event__c record with event details.
      */
     private static Event__c getEventDetails(Id eventId) {
-        return [SELECT Event_Name__c, Location__c, Event_Start_Date__c, Event_End_Date__c 
-                FROM Event__c 
-                WHERE Id = :eventId 
-                LIMIT 1];
+        // Get the current user's Id
+        String userId = UserInfo.getUserId();
+    
+        // Fetch the event details and ensure the event belongs to the logged-in user
+        Event__c event = [SELECT Event_Name__c, Location__c, Event_Start_Date__c, Event_End_Date__c, CreatedById 
+                          FROM Event__c 
+                          WHERE Id = :eventId 
+                          AND CreatedById = :userId 
+                          LIMIT 1];
+    
+        return event;
     }
+    
 
     /**
      * Generates a QR code URL with the event and ticket details.

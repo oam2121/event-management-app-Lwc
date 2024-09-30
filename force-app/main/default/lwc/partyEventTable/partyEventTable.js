@@ -68,15 +68,23 @@ export default class ParentComponent extends LightningElement {
     ];
 
 
-      // Fetch Party Events
-      @wire(getPartyEvents)
-      wiredEvents({ error, data }) {
-          if (data) {
-              this.events = data;
-          } else if (error) {
-              this.showToast('Error', 'Error fetching events', 'error');
-          }
-      }
+    @wire(getPartyEvents)
+    wiredEvents({ error, data }) {
+        if (data) {
+            // Format the event dates and times before assigning them
+            this.events = data.map(event => {
+                return {
+                    ...event,
+                    formattedStartDate: this.getFormattedDate(event.Event_Start_Date__c),
+                    formattedStartTime: this.getFormattedTime(event.Event_Start_Date__c),
+                    formattedEndDate: this.getFormattedDate(event.Event_End_Date__c),
+                    formattedEndTime: this.getFormattedTime(event.Event_End_Date__c)
+                };
+            });
+        } else if (error) {
+            this.showToast('Error', 'Error fetching events', 'error');
+        }
+    }
 
     @wire(getSeatingStatus, { eventId: '$selectedEventId' })
     wiredSeatingStatus({ error, data }) {
@@ -388,11 +396,25 @@ handleViewDetails(event) {
     this.isModalOpen = true;
 }
 
+
 handleBookTickets(event) {
     const eventId = event.target.getAttribute('data-id');
     this.selectedEventId = eventId;
     this.isTicketModalOpen = true;
     this.fetchSeatingStatus();
 }
+
+ // Method to get formatted date
+ getFormattedDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(); // Return date only
+}
+
+// Method to get formatted time
+getFormattedTime(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Return time only
+}
+
 
 }

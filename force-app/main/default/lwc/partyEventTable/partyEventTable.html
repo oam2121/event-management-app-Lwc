@@ -1,57 +1,60 @@
 <template>
+    <div class="main-container">
+        <h2 class="section-title">Party Events</h2>
 
-        <div class="main-container">
-            <h2 class="section-title">Party Events</h2>
-    
-            <!-- Conditional rendering for events -->
-            <template if:true={events.length}>
-                <div class="table-container">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Event Name</th>
-                                <th>Event Type</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Location</th>
-                                <th>Price</th>
-                                <th>Actions</th>
+        <!-- Conditional rendering for events -->
+        <template if:true={events.length}>
+            <div class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Event Name</th>
+                            <th>Event Type</th>
+                            <th>Start Date</th>
+                            <th>Start Time</th>
+                            <th>End Date</th>
+                            <th>End Time</th>
+                            <th>Location</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={events} for:item="event">
+                            <tr key={event.Id}>
+                                <td>{event.Event_Name__c}</td>
+                                <td>{event.Event_Type__c}</td>
+                                <!-- Use pre-formatted date and time fields -->
+                                <td>{event.formattedStartDate}</td>
+                                <td>{event.formattedStartTime}</td>
+                                <td>{event.formattedEndDate}</td>
+                                <td>{event.formattedEndTime}</td>
+                                <td>{event.Location__c}</td>
+                                <td>{event.Price__c}</td>
+                                <td>
+                                    <button class="action-button" onclick={handleViewDetails} data-id={event.Id}>View Details</button>
+                                    <button class="action-button" onclick={handleBookTickets} data-id={event.Id}>Book Tickets</button>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <template for:each={events} for:item="event">
-                                <tr key={event.Id}>
-                                    <td>{event.Event_Name__c}</td>
-                                    <td>{event.Event_Type__c}</td>
-                                    <td>{event.Event_Start_Date__c}</td>
-                                    <td>{event.Event_End_Date__c}</td>
-                                    <td>{event.Location__c}</td>
-                                    <td>{event.Price__c}</td>
-                                    <td>
-                                        <button class="action-button" onclick={handleViewDetails} data-id={event.Id}>View Details</button>
-                                        <button class="action-button" onclick={handleBookTickets} data-id={event.Id}>Book Tickets</button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </template>
-    
-            <!-- Show message if no events are found -->
-            <template if:false={events.length}>
-                <p>No events available at the moment.</p>
-            </template>
-        </div>
-    
-        <!-- Event Details Custom Modal -->
-        <template if:true={isModalOpen}>
-            <c-event-party-details-modal 
-                event-id={selectedEventId} 
-                onclose={closeModal}>
-            </c-event-party-details-modal>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
         </template>
 
+        <!-- Show message if no events are found -->
+        <template if:false={events.length}>
+            <p>No events available at the moment.</p>
+        </template>
+    </div>
+
+    <!-- Event Details Custom Modal -->
+    <template if:true={isModalOpen}>
+        <c-event-party-details-modal 
+            event-id={selectedEventId} 
+            onclose={closeModal}>
+        </c-event-party-details-modal>
+    </template>
 
     <!-- Ticket Booking Modal -->
 <template if:true={isTicketModalOpen}>

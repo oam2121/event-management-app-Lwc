@@ -5,14 +5,25 @@ public with sharing class CalendarController {
      * 
      * @return List of Event__c records
      */
+   
+   /**
+     * Retrieves a list of corporate events for the logged-in user.
+     * 
+     * @return List of Event__c records
+     */
     @AuraEnabled(cacheable=true)
     public static List<Event__c> getEvents() {
-        // Query to fetch events that are marked as 'Corporate' and have a start date.
+        // Get the current user Id
+        String userId = UserInfo.getUserId();
+
+        // Query to fetch events that are marked as 'Corporate' and are created by the logged-in user
         return [
             SELECT Id, Event_Name__c, Event_Start_Date__c, Event_End_Date__c, Event_Type__c, 
                    Event_Description__c, Location__c, Meeting_Link__c
             FROM Event__c
-            WHERE Event_Start_Date__c != NULL AND Type_of_Calendar_Event__c = 'Corporate'
+            WHERE Event_Start_Date__c != NULL 
+            AND Type_of_Calendar_Event__c = 'Corporate'
+            AND CreatedById = :userId // Only fetch events created by the logged-in user
         ];
     }
 

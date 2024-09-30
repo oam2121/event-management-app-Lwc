@@ -1,0 +1,186 @@
+/* Styling for the Task Creation Header */
+.form-header {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05rem;
+    text-transform: uppercase;
+}
+
+/* Form Background */
+.form-background {
+    background: linear-gradient(135deg, #eceff1, #ffffff);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Container for form elements */
+.form-container {
+    background: #fdfdfd;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 600px;
+    margin: auto;
+}
+
+/* Form Row (for multiple inputs on the same row) */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+/* Ensure all input fields take appropriate width */
+.form-input, .form-combobox, .form-textarea {
+    width: 48%; /* Two inputs per row */
+    border-radius: 6px;
+}
+
+/* Increased height for text area */
+.form-textarea {
+    min-height: 120px;
+    width: 100%; /* Textarea spans full width */
+}
+
+/* Spacing between dropdown and table */
+.form-combobox {
+    margin-bottom: 1.5rem; /* Add space below dropdowns */
+}
+
+/* Button container */
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.25rem;
+}
+
+/* Save Task Button - No background, border with color */
+.form-button {
+    width: 200px;
+    font-size: 1rem;
+    padding: 0.75rem;
+    background-color: transparent; /* No background color */
+    color: #007bff; /* Button text color */
+    border-radius: 6px;
+    text-transform: uppercase;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.form-button:hover {
+    color: #fff; /* White text on hover */
+}
+
+/* Full-width task list container */
+.task-list-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* Full-width task table */
+.full-width-table {
+    width: 100%;
+}
+
+/* Task Table Styling */
+.slds-table {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #e1e8ed;
+    background-color: #ffffff;
+    margin-bottom: 1.5rem; /* Add space between table and next elements */
+}
+
+.slds-table thead {
+    background-color: #f4f6f9;
+    color: #333;
+}
+
+.slds-table th, .slds-table td {
+    padding: 1rem;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+/* Mark Complete Button - No background, border with color */
+.slds-button_toggle {
+    font-weight: 600;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    background-color: transparent; /* Remove background color */
+    color: #007bff; /* Button text color */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.slds-button_toggle:hover {
+    color: #fff; /* White text on hover */
+}
+
+/* Modal Styling */
+.slds-modal__header {
+    background-color: #f7f9fc;
+    border-bottom: 1px solid #dfe5eb;
+    padding: 1.5rem;
+}
+
+.slds-modal__content {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 800px;
+}
+
+/* Add Subtask Section */
+.slds-m-top_medium {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem; /* Adds spacing between the input and button */
+}
+
+/* Input for New Subtask */
+.new-subtask-input {
+    width: 80%; /* Adjust width if needed */
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #d1d5da;
+}
+
+/* Add Subtask Button */
+.subtask-add-button {
+    background-color: transparent;
+    color: #007bff;
+    width: 20%;
+    padding: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.subtask-add-button:hover {
+    color: white;
+}
+
+/* General Box Shadow */
+.box-shadow-light {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.priority-indicator {
+    display: inline-block;
+    width: 18px;  /* Increased size */
+    height: 18px;  /* Increased size */
+    border-radius: 50%;
+    margin-left: 10px;
+    vertical-align: middle;
+}

@@ -126,7 +126,6 @@
 }
 
 /* Modal wrapper and backdrop */
-/* Modal Wrapper and Backdrop */
 .custom-modal-wrapper {
     position: fixed;
     top: 0;
@@ -251,7 +250,6 @@
     transition: width 0.5s ease-in-out;
 }
 
-
 /* Card Number, Expiry Date, and CVV in a single row */
 .card-details-grid {
     display: grid;
@@ -362,4 +360,30 @@
 
 .verify-otp-button:hover {
     background-color: #FF9800; /* Lighter orange on hover */
+}
+
+/* Responsive table adjustments for smaller screens */
+@media screen and (max-width: 768px) {
+    .custom-table thead {
+        display: none; /* Hide table header on small screens */
+    }
+    .custom-table tbody tr {
+        display: block;
+        margin-bottom: 20px;
+    }
+    .custom-table tbody td {
+        display: block;
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+    .custom-table tbody td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 15px;
+        font-weight: bold;
+        text-align: left;
+    }
 }

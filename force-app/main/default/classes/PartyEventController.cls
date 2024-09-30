@@ -7,13 +7,20 @@ public with sharing class PartyEventController {
      */
     @AuraEnabled(cacheable=true)
     public static List<Event__c> getEvents() {
+        // Get the current user Id
+        String userId = UserInfo.getUserId();
+    
+        // Fetch events created by the logged-in user that are marked as 'Party Event'
         return [
             SELECT Id, Event_Name__c, Event_Start_Date__c, Event_End_Date__c, Event_Type__c, 
                    Event_Description__c, Location__c, Max_Attendees__c, Price__c
             FROM Event__c
-            WHERE Event_Start_Date__c != NULL AND Type_of_Calendar_Event__c = 'Party Event'
+            WHERE Event_Start_Date__c != NULL 
+            AND Type_of_Calendar_Event__c = 'Party Event'
+            AND CreatedById = :userId
         ];
     }
+    
 
     /**
      * Updates the start date of a party event.
@@ -24,8 +31,12 @@ public with sharing class PartyEventController {
     @AuraEnabled
     public static void updateEventDate(Id eventId, String newStartDate) {
         try {
-            // Fetch the event record and update the start date
-            Event__c eventToUpdate = [SELECT Id, Event_Start_Date__c FROM Event__c WHERE Id = :eventId LIMIT 1];
+            String userId = UserInfo.getUserId();
+            // Fetch the event record, ensuring it belongs to the logged-in user
+            Event__c eventToUpdate = [SELECT Id, Event_Start_Date__c 
+                                      FROM Event__c 
+                                      WHERE Id = :eventId AND CreatedById = :userId 
+                                      LIMIT 1];
             eventToUpdate.Event_Start_Date__c = Date.valueOf(newStartDate);  // Convert string to Date
             update eventToUpdate;
         } catch (Exception e) {
@@ -120,10 +131,18 @@ public with sharing class PartyEventController {
      */
     @AuraEnabled(cacheable=true)
     public static List<Event__c> getPartyEvents() {
-        return [SELECT Id, Event_Name__c, Event_Type__c, Event_Start_Date__c, Event_End_Date__c, Location__c, Price__c 
-                FROM Event__c WHERE Type_of_Calendar_Event__c = 'Party Event'];
+        // Get the current user Id
+        String userId = UserInfo.getUserId();
+    
+        // Fetch events marked as 'Party Event' created by the logged-in user
+        return [
+            SELECT Id, Event_Name__c, Event_Type__c, Event_Start_Date__c, Event_End_Date__c, Location__c, Price__c
+            FROM Event__c 
+            WHERE Type_of_Calendar_Event__c = 'Party Event'
+            AND CreatedById = :userId
+        ];
     }
-
+    
     /**
      * Fetches the details of a specific party event.
      * 
@@ -132,9 +151,16 @@ public with sharing class PartyEventController {
      */
     @AuraEnabled(cacheable=true)
     public static Event__c getEventDetails(Id eventId) {
-        return [SELECT Id, Event_Name__c, Event_Type__c, Event_Start_Date__c, Event_End_Date__c, Location__c, Price__c 
-                FROM Event__c WHERE Id = :eventId LIMIT 1];
+        String userId = UserInfo.getUserId();
+        // Fetch event details only if the event belongs to the logged-in user
+        return [
+            SELECT Id, Event_Name__c, Event_Type__c, Event_Start_Date__c, Event_End_Date__c, Location__c, Price__c 
+            FROM Event__c 
+            WHERE Id = :eventId AND CreatedById = :userId 
+            LIMIT 1
+        ];
     }
+    
 
     /**
      * Deletes a specific event by ID.
@@ -144,13 +170,17 @@ public with sharing class PartyEventController {
     @AuraEnabled
     public static void deleteEvent(Id eventId) {
         try {
-            // Fetch the event record and perform the delete operation
-            Event__c eventToDelete = [SELECT Id FROM Event__c WHERE Id = :eventId LIMIT 1];
+            String userId = UserInfo.getUserId();
+            // Fetch the event record to delete, ensuring it belongs to the logged-in user
+            Event__c eventToDelete = [SELECT Id FROM Event__c 
+                                     WHERE Id = :eventId AND CreatedById = :userId 
+                                     LIMIT 1];
             delete eventToDelete;
         } catch (DmlException e) {
             throw new AuraHandledException('Error deleting event: ' + e.getMessage());
         }
     }
+    
 
     /**
      * Retrieves the seating status for an event.
