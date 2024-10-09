@@ -56,5 +56,27 @@ public with sharing class SubtaskController {
         subtask.Completion_Date__c = isCompleted ? Date.today() : null;
         update subtask;
     }
+
+    @AuraEnabled
+    public static void deleteSubtask(Id subtaskId) {
+        try {
+            // Get the current user's Id
+            String userId = UserInfo.getUserId();
+    
+            // Fetch the subtask and ensure its parent Task Checklist belongs to the logged-in user
+            Subtasks__c subtask = [SELECT Id, Task_Checklist__c FROM Subtasks__c WHERE Id = :subtaskId LIMIT 1];
+            Task_Checklist__c taskChecklist = [SELECT Id, CreatedById FROM Task_Checklist__c WHERE Id = :subtask.Task_Checklist__c LIMIT 1];
+    
+            // Ensure the task checklist belongs to the logged-in user
+            if (taskChecklist.CreatedById != userId) {
+                throw new AuraHandledException('You are not authorized to delete this subtask.');
+            }
+    
+            // Delete the subtask if authorized
+            delete subtask;
+        } catch (Exception e) {
+            throw new AuraHandledException('Error deleting subtask: ' + e.getMessage());
+        }
+    }
     
 }

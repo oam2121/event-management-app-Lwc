@@ -134,4 +134,22 @@ public static void deleteEvent(Id eventId) {
     // Delete the event record
     delete eventToDelete;
 }
+
+@AuraEnabled(cacheable=true)
+public static Event__c getEventById(Id eventId) {
+    return [SELECT Id, Event_Name__c FROM Event__c WHERE Id = :eventId LIMIT 1];
+}
+
+
+    @AuraEnabled(cacheable=true)
+    public static List<Event__c> getCorporateEvents() {
+        return [SELECT Id, Event_Name__c FROM Event__c WHERE Type_of_Calendar_Event__c = 'Corporate'];
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Event__c> getPartyEvents() {
+        return [SELECT Id, Event_Name__c FROM Event__c WHERE Type_of_Calendar_Event__c = 'Party Event'];
+    }
+
+
 }

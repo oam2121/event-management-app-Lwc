@@ -538,4 +538,13 @@ closeRSVPModal() {
         this.selectedView = event.target.dataset.view;
         this.generateCalendar();  // Re-generate the calendar for the new view
     }
+
+    navigateToBudgetPage() {
+        // Assuming the selectedEvent has the event ID that you're displaying in the modal
+        const eventId = this.selectedEvent.id;
+    
+        // Use navigation to redirect to the budget management page, passing the event ID
+        window.location.href = `/budget-management?eventId=${eventId}`;
+    }
+    
 }

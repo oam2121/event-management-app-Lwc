@@ -1,0 +1,194 @@
+<template>
+    <!-- Background div for the whole content -->
+    <div class="custom-background">
+        <!-- Main Heading inside the container -->
+        <h1 class="slds-text-heading_large slds-m-bottom_medium">Budget Management System</h1>
+
+        <div class="slds-box slds-theme_default slds-p-around_medium">
+            <!-- Event Type Selection -->
+            <lightning-combobox label="Select Event Type" value={selectedEventType} placeholder="Select Event Type"
+                options={eventTypeOptions} onchange={handleEventTypeChange} class="slds-m-bottom_medium">
+            </lightning-combobox>
+
+            <!-- Event Name Selection -->
+            <lightning-combobox label="Select Event" value={selectedEventName} placeholder="Select Event"
+                options={eventOptions} onchange={handleEventNameChange} class="slds-m-bottom_medium">
+            </lightning-combobox>
+
+            <!-- Button to Open Budget Details Modal -->
+            <lightning-button label="Update Budget / Manage Expenses" variant="brand" onclick={openBudgetModal}
+                class="slds-m-top_medium"></lightning-button>
+
+        </div>
+    </div>
+
+    <!-- Budget Management Modal -->
+    <template if:true={isBudgetModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-modal__title slds-hyphenate">Manage Budget Details</h2>
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={closeBudgetModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    <!-- Budget Details Display -->
+                    <lightning-input label="Budget No" value={budgetNo} readonly
+                        class="slds-m-bottom_small"></lightning-input>
+                    <lightning-input label="Actual Spend" value={actualSpend} readonly
+                        class="slds-m-bottom_small"></lightning-input>
+                    <lightning-input label="Remaining Budget" value={remainingBudget} readonly
+                        class="slds-m-bottom_small"></lightning-input>
+                    <lightning-input label="Budget Used %" value={budgetUsedPercentage} readonly
+                        class="slds-m-bottom_small"></lightning-input>
+                    <lightning-input label="Total Budget" value={totalBudget} type="number"
+                        onchange={handleBudgetChange} class="slds-m-bottom_small"
+                        disabled={budgetLocked}></lightning-input>
+
+                    <!-- Custom Budget Status Bar -->
+                    <div class="slds-m-top_medium">
+                        <div class="slds-grid slds-grid_align-spread">
+                            <span>Budget Status</span>
+                            <span>{calculatedBudgetUsedPercentage}% Used</span>
+                        </div>
+                        <div class="custom-progress-bar-container">
+                            <div class="custom-progress-bar" style={statusBarStyle}></div>
+                        </div>
+                    </div>
+
+                    <!-- Add margin between the progress bar and settings icon -->
+                    <div class="slds-m-top_medium">
+                        <!-- Settings Gear Icon inside Budget Modal -->
+                        <lightning-button-icon icon-name="utility:settings" alternative-text="Settings"
+                            onclick={openSettingsModal} class="slds-button_icon slds-m-top_small"
+                            title="Settings"></lightning-button-icon>
+                    </div>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Close" onclick={closeBudgetModal}
+                        class="slds-m-right_small"></lightning-button>
+                    <lightning-button variant="brand" label="Update Budget" onclick={handleBudgetUpdate}
+                        class="slds-m-right_small" disabled={budgetLocked}></lightning-button>
+                    <lightning-button variant="success" label="Add/Manage Expenses"
+                        onclick={openExpenseModal}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Settings Modal for Budget Lock -->
+    <template if:true={isSettingsModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header slds-text-heading_medium">
+                    <h2 class="slds-modal__title slds-hyphenate">Budget Settings</h2>
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={closeSettingsModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-card">
+                        <div class="slds-card__header slds-grid">
+                            <h3 class="slds-card__header-title slds-text-heading_small">Lock Budget Settings</h3>
+                        </div>
+                        <div class="slds-card__body slds-p-around_medium">
+                            <!-- Budget Lock Toggle Section -->
+                            <div class="slds-grid slds-wrap slds-m-bottom_medium">
+                                <div class="slds-col slds-size_1-of-1 slds-text-align_center">
+                                    <lightning-input type="toggle" label="Lock Budget" checked={budgetLocked}
+                                        onchange={handleLockToggle}></lightning-input>
+                                    <p class="slds-text-color_weak slds-m-top_small">Activate this setting to lock the
+                                        budget. No further changes will be allowed.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Close" onclick={closeSettingsModal}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+
+    <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+
+    <!-- Modal for Managing Expenses -->
+    <template if:true={isExpenseModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-modal__title slds-hyphenate">Manage Expenses</h2>
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={closeExpenseModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium" style="height: 40rem;">
+                    <!-- Add New Expense Section -->
+                    <div class="slds-grid slds-wrap slds-grid_pull-padded slds-m-bottom_medium">
+                        <div class="slds-col slds-size_1-of-2 slds-p-right_small">
+                            <lightning-input label="Expense Amount" value={newExpenseAmount} type="number"
+                                onchange={handleNewExpenseAmountChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-left_small">
+                            <lightning-combobox label="Expense Category" value={newExpenseCategory}
+                                options={expenseCategoryOptions}
+                                onchange={handleNewExpenseCategoryChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-right_small">
+                            <lightning-combobox label="Payment Method" value={newPaymentMethod}
+                                options={paymentMethodOptions}
+                                onchange={handlePaymentMethodChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-left_small">
+                            <lightning-input label="Expense Date" value={newExpenseDate} type="date"
+                                onchange={handleNewExpenseDateChange}></lightning-input>
+                        </div>
+                    </div>
+
+                    <!-- Existing Expenses -->
+                    <lightning-datatable key-field="id" data={expenseData} columns={expenseColumns}
+                        hide-checkbox-column="true" resize-column-disabled="true">
+                    </lightning-datatable>
+
+                    <!-- Display Total Expenses Below the Table -->
+                    <div class="slds-m-top_medium slds-text-align_right">
+                        <strong>Total: ₹{totalExpenses}</strong>
+                    </div>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Close" onclick={closeExpenseModal}></lightning-button>
+                    <lightning-button variant="success" label="Add Expense"
+                        onclick={handleAddExpense}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+
+</template>

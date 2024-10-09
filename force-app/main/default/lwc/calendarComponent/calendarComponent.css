@@ -1,4 +1,59 @@
-/* Overall layout */
+/* Responsive layout for small screens */
+@media only screen and (max-width: 768px) {
+    .calendar-header-container {
+        flex-direction: column;
+        text-align: center;
+        padding: 5px;
+    }
+
+    .calendar-navigation {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .month-display {
+        margin: 5px 0;
+        font-size: 18px;
+    }
+
+    .nav-button {
+        width: 90%;
+        margin: 5px 0;
+        padding: 6px 0;
+        background-color: transparent; /* Remove background color */
+        border: 1px solid #0070d2; /* Border only for button */
+        color: #0070d2;
+    }
+
+    .calendar-grid {
+        grid-template-columns: repeat(7, 1fr);
+        padding: 5px;
+    }
+
+    .calendar-day {
+        min-height: 60px;
+        padding: 6px;
+        overflow: hidden; /* Ensure events don't overflow */
+    }
+
+    .day-number {
+        font-size: 14px;
+    }
+
+    .event-item {
+        font-size: 10px;
+        padding: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Avoid overflow by cutting off long event names */
+    }
+
+    .calendar-day-header {
+        padding: 5px 0; /* Reduce padding to fit headers */
+    }
+}
+
+/* General Styles */
 .calendar-header-container {
     display: flex;
     justify-content: space-between;
@@ -15,7 +70,27 @@
     margin-right: 20px;
 }
 
-/* Calendar navigation */
+.view-switch-btn {
+    font-size: 14px;
+    padding: 8px 15px;
+    background-color: transparent;
+    border: none; /* Remove border */
+    border-bottom: 2px solid transparent; /* For active state */
+    color: #0070d2;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-switch-btn.active {
+    border-bottom: 2px solid #0070d2; /* Highlight active button */
+    font-weight: bold;
+}
+
+.view-switch-btn:hover {
+    color: #005bb5;
+    border-bottom: 2px solid #005bb5; /* Add hover effect */
+}
+
 .calendar-navigation {
     display: flex;
     justify-content: center;
@@ -31,41 +106,44 @@
 }
 
 .nav-button {
-    background-color: #0070d2;
-    color: white;
-    border-radius: 5px;
-    padding: 8px 16px;
+    border: none; /* Remove background */
+    background-color: transparent;
+    color: #0070d2;
+    font-size: 16px;
+    cursor: pointer;
 }
 
 .nav-button:hover {
-    background-color: #005bb5;
+    color: #005bb5;
 }
 
 /* Grid and day layout */
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: 2px;
     margin-top: 20px;
+    padding: 10px;
 }
 
 .calendar-day-header {
     text-align: center;
     font-weight: bold;
-    padding: 12px 0;
+    padding: 8px 0;
     background-color: #f0f0f0;
-    border-bottom: 2px solid #ddd;
+    border-bottom: 1px solid #ddd;
     color: #333;
 }
 
 .calendar-day {
     min-height: 100px;
-    padding: 12px;
+    padding: 10px;
     border: 1px solid #ddd;
     background-color: #fff;
     position: relative;
     border-radius: 5px;
     transition: all 0.3s;
+    overflow: hidden; /* Ensure events fit inside */
 }
 
 .calendar-day:hover {
@@ -78,20 +156,23 @@
 }
 
 .day-number {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     color: #0070d2;
 }
 
 .event-item {
-    margin-top: 8px;
+    margin-top: 5px;
     background-color: #0070d2;
     color: white;
-    padding: 6px;
-    border-radius: 5px;
+    padding: 4px;
+    border-radius: 3px;
     cursor: pointer;
     text-align: center;
-    font-size: 14px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Ensure text doesn't overflow */
     transition: all 0.3s;
 }
 
@@ -101,338 +182,182 @@
 
 .filter-container {
     text-align: right;
-    margin-bottom: 20px;
-}
-
-.filter-dropdown {
-    width: 250px;
-}
-
-.lightning-combobox {
-    font-size: 14px;
-    padding: 4px;
-}
-.custom-modal-header {
-    background-color: #0070d2;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-}
-
-.custom-modal-body {
-    padding: 1rem;
-    font-size: 16px;
-    color: #333;
-}
-
-.custom-modal-footer {
-    padding: 1rem;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.modal-section {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.modal-section lightning-icon {
-    margin-right: 10px;
-}
-
-.custom-close-button {
-    background-color: #f27575;
-    color: white;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.custom-close-button:hover {
-    background-color: #d9534f;
-}
-
-.slds-modal__container {
-    max-width: 50rem;
-    width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.slds-backdrop_open {
-    z-index: 8000;
-}/* Overall layout */
-.calendar-header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-}
-
-.calendar-header-left {
-    display: inline-flex;
-}
-
-.calendar-header-right {
-    display: inline-flex;
-    margin-right: 20px;
-}
-
-/* Calendar navigation */
-.calendar-navigation {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.month-display {
-    margin: 0 20px;
-    font-size: 20px;
-    font-weight: bold;
-    color: #0070d2;
-}
-
-.nav-button {
-    background-color: #0070d2;
-    color: white;
-    border-radius: 5px;
-    padding: 8px 16px;
-}
-
-.nav-button:hover {
-    background-color: #005bb5;
-}
-
-/* Grid and day layout */
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-top: 20px;
-}
-
-.calendar-day-header {
-    text-align: center;
-    font-weight: bold;
-    padding: 12px 0;
-    background-color: #f0f0f0;
-    border-bottom: 2px solid #ddd;
-    color: #333;
-}
-
-.calendar-day {
-    min-height: 100px;
-    padding: 12px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    position: relative;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.calendar-day:hover {
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.highlight-today {
-    border: 2px solid #0070d2;
-}
-
-.day-number {
-    font-size: 18px;
-    font-weight: bold;
-    color: #0070d2;
-}
-
-.event-item {
-    margin-top: 8px;
-    background-color: #0070d2;
-    color: white;
-    padding: 6px;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    font-size: 14px;
-    transition: all 0.3s;
-}
-
-.event-item:hover {
-    background-color: #005bb5;
-}
-
-.filter-container {
-    text-align: right;
-    margin-bottom: 20px;
-}
-
-.filter-dropdown {
-    width: 250px;
-}
-
-.lightning-combobox {
-    font-size: 14px;
-    padding: 4px;
-}
-.custom-modal-header {
-    background-color: #0070d2;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-}
-
-.custom-modal-body {
-    padding: 1rem;
-    font-size: 16px;
-    color: #333;
-}
-
-.custom-modal-footer {
-    padding: 1rem;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.modal-section {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.modal-section lightning-icon {
-    margin-right: 10px;
-}
-
-.custom-close-button {
-    background-color: #f27575;
-    color: white;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.custom-close-button:hover {
-    background-color: #d9534f;
-}
-
-.slds-modal__container {
-    max-width: 50rem;
-    width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.slds-backdrop_open {
-    z-index: 8000;
-}
-
-.today {
-    border: 2px solid rgb(8, 20, 244);
-    background-color: #c9c8c8;
-}
-
-
-/* Event details modal CSS */
-
-.pricing-table-container {
-    max-width: 100%; /* Full width */
-    margin: 0 auto;
-    padding: 40px;
-    background: linear-gradient(to bottom, #2a2a72, #009ffd); /* Muted blue gradient */
-    color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Softer shadow */
-    text-align: center;
-}
-
-.pricing-header {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    font-weight: 700;
-    color: #f2f2f2; /* Softer text color */
-}
-
-.pricing-subheader {
-    font-size: 1.2rem;
-    color: #dddddd;
-    margin-bottom: 40px;
-}
-
-.pricing-table {
-    display: flex;
-    justify-content: space-around; /* Keep columns close together */
-    flex-wrap: wrap;
-    gap: 30px;
-    margin: 0 auto; /* Center the columns */
-    padding: 0 20px; /* Add padding for better spacing */
-}
-
-.pricing-column {
-    flex: 1 1 calc(25% - 40px); /* Adjust for 4 columns */
-    min-width: 250px;
-    background-color: #ffffff; /* White background for each card */
-    border-radius: 15px;
-    padding: 25px;
-    transition: transform 0.3s ease;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Elevate the card */
-    color: #333333; /* Dark text color */
-}
-
-.pricing-column:hover {
-    transform: translateY(-10px);
-}
-
-.pricing-title {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #009ffd; /* Vibrant blue for key titles */
-    margin-bottom: 15px;
-}
-
-.pricing-feature {
-    font-size: 1.2rem;
-    color: #333333; /* Dark color for content */
     margin-bottom: 10px;
 }
 
-a {
-    color: #009ffd;
-    text-decoration: none;
+.filter-dropdown {
+    width: 80%;
+    margin: 0 auto;
 }
 
-a:hover {
-    text-decoration: underline;
+.custom-modal-header {
+    background-color: #0070d2;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
 }
 
-.action-buttons {
+.custom-modal-body {
+    padding: 1rem;
+    font-size: 16px;
+    color: #333;
+}
+
+.custom-modal-footer {
+    padding: 1rem;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-section lightning-icon {
+    margin-right: 10px;
+}
+
+.custom-close-button {
+    background-color: #f27575;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.custom-close-button:hover {
+    background-color: #d9534f;
+}
+
+.slds-modal__container {
+    max-width: 50rem;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.slds-backdrop_open {
+    z-index: 8000;
+}
+/* Modal Styles */
+.custom-modal {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin-top: 30px;
+    align-items: center;
+    padding: 20px;
+    overflow: hidden;
 }
 
-/* Updated button styles */
-.custom-btn {
-    padding: 14px 30px;
-    background-color: #00b4d8; /* Bright blue for a modern look */
-    border: none;
+.custom-modal .slds-modal__container {
+    border-radius: 10px;
+    max-width: 100%; /* Allow full width on small screens */
+    width: 90%;
+    padding: 0;
+}
+
+.custom-modal-header {
+    background-color: #0070d2;
     color: white;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 50px; /* Make buttons more pill-shaped */
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1); /* Add slight shadow */
+    padding: 15px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.custom-btn:hover {
-    background-color: #0077b6; /* Slightly darker blue on hover */
-    transform: translateY(-4px); /* More defined button hover effect */
-    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+.custom-modal-body {
+    padding: 20px;
+    font-size: 16px;
+    color: #333;
+    overflow-y: auto; /* Allow scrolling if content exceeds */
 }
+
+.custom-modal-body p {
+    margin-bottom: 10px;
+}
+
+.custom-modal-footer {
+    padding: 15px;
+    background-color: #f4f4f4;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Responsive Modal Adjustments */
+@media only screen and (max-width: 768px) {
+    .custom-modal .slds-modal__container {
+        width: 95%; /* Wider modal on smaller screens */
+    }
+
+    .custom-modal-header {
+        padding: 10px;
+        font-size: 18px;
+    }
+
+    .custom-modal-body {
+        padding: 15px;
+        font-size: 14px;
+    }
+
+    .custom-modal-footer {
+        padding: 10px;
+    }
+
+    /* Reduce font sizes for better readability on small screens */
+    .modal-section p {
+        font-size: 14px;
+    }
+
+    .modal-section lightning-icon {
+        font-size: 14px;
+    }
+}
+
+.modal-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-section lightning-icon {
+    margin-right: 10px;
+}
+
+.custom-close-button {
+    background-color: #f27575;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.custom-close-button:hover {
+    background-color: #d9534f;
+}
+
+/* Button Styling in Modals */
+.custom-modal-footer .slds-button {
+    padding: 8px 15px;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+.custom-modal-footer .slds-button_neutral {
+    color: #0070d2;
+}
+
+.custom-modal-footer .slds-button_brand {
+    background-color: #0070d2;
+}
+
+/* Specific styles for text inputs and rich text editor */
+.lightning-input-rich-text {
+    margin-bottom: 15px;
+}
+

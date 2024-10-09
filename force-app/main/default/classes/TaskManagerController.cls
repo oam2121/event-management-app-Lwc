@@ -91,33 +91,96 @@ public static void updateTaskCompletionPercentage(Id taskChecklistId) {
 
 @AuraEnabled
 public static void updateTaskStatus(String taskId, String newStatus) {
-    Task_Checklist__c task = [SELECT Id, Status__c FROM Task_Checklist__c WHERE Id = :taskId LIMIT 1];
+    // Get the current user's Id
+    String userId = UserInfo.getUserId();
+
+    // Ensure the task belongs to the logged-in user
+    Task_Checklist__c task = [SELECT Id, Status__c, CreatedById FROM Task_Checklist__c WHERE Id = :taskId LIMIT 1];
+    if (task.CreatedById != userId) {
+        throw new AuraHandledException('You are not authorized to update this task.');
+    }
+
+    // Update task status
     task.Status__c = newStatus;
     update task;
 }
 
+
 @AuraEnabled
 public static void uploadFileToTask(Id taskId, String fileName, String base64Data, String fileType) {
-    System.debug('Task ID: ' + taskId);
-    System.debug('File Name: ' + fileName);
+    // Get the current user's Id
+    String userId = UserInfo.getUserId();
 
-    // Create ContentVersion for the file upload (This stores the file in Salesforce Files)
+    // Ensure the task belongs to the logged-in user
+    Task_Checklist__c task = [SELECT Id, CreatedById FROM Task_Checklist__c WHERE Id = :taskId LIMIT 1];
+    if (task.CreatedById != userId) {
+        throw new AuraHandledException('You are not authorized to upload files to this task.');
+    }
+
+    // Create ContentVersion for the file upload
     ContentVersion contentVersion = new ContentVersion();
     contentVersion.Title = fileName;
     contentVersion.PathOnClient = fileName;
     contentVersion.VersionData = EncodingUtil.base64Decode(base64Data);
     insert contentVersion;
 
-    // Link the file (ContentDocument) to the task
+    // Link the file to the task
     Id contentDocumentId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :contentVersion.Id].ContentDocumentId;
-    System.debug('Content Document ID: ' + contentDocumentId);
-
     ContentDocumentLink cdl = new ContentDocumentLink();
     cdl.ContentDocumentId = contentDocumentId;
-    cdl.LinkedEntityId = taskId; // Link the file to the task
-    cdl.ShareType = 'V'; // Viewer access
+    cdl.LinkedEntityId = taskId;
+    cdl.ShareType = 'V';
     cdl.Visibility = 'AllUsers';
     insert cdl;
+}
+
+
+@AuraEnabled
+public static void deleteTaskRecord(Id taskId) {
+    try {
+        // Get the current user's Id
+        String userId = UserInfo.getUserId();
+
+        // Ensure the task belongs to the logged-in user
+        Task_Checklist__c task = [SELECT Id, CreatedById FROM Task_Checklist__c WHERE Id = :taskId LIMIT 1];
+        if (task.CreatedById != userId) {
+            throw new AuraHandledException('You are not authorized to delete this task.');
+        }
+
+        // Delete the task
+        delete task;
+    } catch (Exception e) {
+        throw new AuraHandledException('Error deleting task: ' + e.getMessage());
+    }
+}
+
+
+@AuraEnabled
+public static Task_Checklist__c updateTaskRecord(String taskJson) {
+    try {
+        // Deserialize the JSON into a Task_Checklist__c object
+        Task_Checklist__c task = (Task_Checklist__c) JSON.deserialize(taskJson, Task_Checklist__c.class);
+
+        // Check if the task Id exists
+        if (task.Id == null) {
+            throw new AuraHandledException('Error: Task ID is missing. Cannot update task without an ID.');
+        }
+
+        // Ensure the task belongs to the logged-in user
+        String userId = UserInfo.getUserId();
+        Task_Checklist__c existingTask = [SELECT Id, CreatedById FROM Task_Checklist__c WHERE Id = :task.Id LIMIT 1];
+        if (existingTask.CreatedById != userId) {
+            throw new AuraHandledException('You are not authorized to update this task.');
+        }
+
+        // Perform update
+        update task;
+
+        // Return the updated task
+        return task;
+    } catch (Exception e) {
+        throw new AuraHandledException('Error updating task: ' + e.getMessage());
+    }
 }
 
 

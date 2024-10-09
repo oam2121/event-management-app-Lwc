@@ -8,6 +8,10 @@ import saveSubtask from '@salesforce/apex/SubtaskController.saveSubtask';
 import updateCompletionStatus from '@salesforce/apex/SubtaskController.updateCompletionStatus';
 import updateTaskCompletionPercentage from '@salesforce/apex/TaskManagerController.updateTaskCompletionPercentage';
 import uploadFileToTask from '@salesforce/apex/TaskManagerController.uploadFileToTask';
+import deleteTaskRecord from '@salesforce/apex/TaskManagerController.deleteTaskRecord'; // Add this
+import deleteSubtaskRecord from '@salesforce/apex/SubtaskController.deleteSubtask'; // Add this
+import updateTaskRecord from '@salesforce/apex/TaskManagerController.updateTaskRecord'; // Import the new method
+
 
 export default class TaskManager extends LightningElement {
     @track taskChecklistId;
@@ -44,7 +48,16 @@ export default class TaskManager extends LightningElement {
         { label: 'Party', value: 'Party' }
     ];
 
+    @track statusOptions = [
+        { label: 'Not Started', value: 'Not Started' },
+        { label: 'In Progress', value: 'In Progress' },
+        { label: 'Completed', value: 'Completed' }
+    ];
+
     @track eventOptions = []; // Options for the event lookup
+    @track isReadonly = true; // Toggle between read-only and edit mode
+    @track isEditing = false; // Tracks if we are in edit mode
+    @track isDeleteModalOpen = false;  // Controls the delete confirmation modal visibility
 
     // Fetch events based on event type for search filtering
     @wire(getFilteredEvents, { eventType: '$searchFilters.eventType' })
@@ -163,15 +176,14 @@ export default class TaskManager extends LightningElement {
             });
     }
 
-    // Handle row action for viewing task details in modal
     handleRowAction(event) {
         const task = event.detail.row;
-        this.selectedTask = task;
+        this.selectedTask = { ...task }; // Create a deep copy to prevent mutation of the original object
         this.taskChecklistId = task.Id;
         this.isModalOpen = true;
-
         this.loadSubtasks(task.Id);
     }
+
 
     // Load subtasks for the current task
     loadSubtasks(taskChecklistId) {
@@ -332,5 +344,126 @@ export default class TaskManager extends LightningElement {
                 return 'background-color: gray;';
         }
     }
+
+    enableEditMode() {
+        this.isReadonly = false;
+        this.isEditing = true;
+    }
+
+
+    // Handle saving changes
+    saveTaskChanges() {
+        this.isLoading = true;
+
+        // Prepare the updated task object for saving
+        const updatedTask = {
+            Id: this.selectedTask.Id,  // Ensure the task Id is passed for updating
+            Task_Name__c: this.selectedTask.Task_Name__c,
+            Task_Description__c: this.selectedTask.Task_Description__c,
+            Priority__c: this.selectedTask.Priority__c,
+            Due_Date__c: this.selectedTask.Due_Date__c,
+            Status__c: this.selectedTask.Status__c
+        };
+
+        // Call Apex method to update the task
+        updateTaskRecord({ taskJson: JSON.stringify(updatedTask) })
+            .then(() => {
+                this.showSuccessToast('Task updated successfully!');
+                this.isReadonly = true; // Set back to read-only after saving
+                this.isEditing = false; // Exit editing mode
+                this.isLoading = false; // Hide spinner
+            })
+            .catch(error => {
+                this.showErrorToast('Error updating task: ' + error.body.message);
+                this.isLoading = false; // Hide spinner
+            });
+    }
+
+ // Delete the Task
+ deleteTask() {
+    // Perform the deletion in Salesforce via the Apex method
+    deleteTaskRecord({ taskId: this.selectedTask.Id })
+        .then(() => {
+            this.showSuccessToast('Task deleted successfully');
+            this.isModalOpen = false;
+            this.isDeleteModalOpen = false;
+            // You might want to refresh the task list here
+            this.loadTasks();
+        })
+        .catch(error => {
+            this.showErrorToast('Error deleting task: ' + error.body.message);
+        });
+}
+
+    // Delete subtask
+    deleteSubtask(event) {
+        const subtaskId = event.target.dataset.id;
+
+        deleteSubtaskRecord({ subtaskId })
+            .then(() => {
+                this.showSuccessToast('Subtask deleted successfully!');
+                this.subtasks = this.subtasks.filter(subtask => subtask.Id !== subtaskId);
+            })
+            .catch(error => {
+                this.showErrorToast('Error deleting subtask: ' + error.body.message);
+            });
+    }
+
+      // Handle Task Name Change
+      handleTaskEdit(event) {
+        if (this.selectedTask) {
+            this.selectedTask.Task_Name__c = event.target.value; // Capture the new value
+        } else {
+            console.error('Selected Task is undefined!');
+        }
+    }
+
+    // Handle Task Description Change
+    handleTaskDescriptionEdit(event) {
+        if (this.selectedTask) {
+            this.selectedTask.Task_Description__c = event.target.value; // Capture the new value
+        } else {
+            console.error('Selected Task is undefined!');
+        }
+    }
+
+    // Handle Priority Change
+    handlePriorityEdit(event) {
+        if (this.selectedTask) {
+            this.selectedTask.Priority__c = event.detail.value; // Capture the new value
+        } else {
+            console.error('Selected Task is undefined!');
+        }
+    }
+
+    // Handle Due Date Change
+    handleDueDateEdit(event) {
+        if (this.selectedTask) {
+            this.selectedTask.Due_Date__c = event.target.value; // Capture the new value
+        } else {
+            console.error('Selected Task is undefined!');
+        }
+    }
+
+    // Handle Status Change
+    handleStatusEdit(event) {
+        if (this.selectedTask) {
+            this.selectedTask.Status__c = event.detail.value; // Capture the new value
+        } else {
+            console.error('Selected Task is undefined!');
+        }
+    }
+
+     // Show Delete Confirmation Modal
+     showDeleteConfirmation() {
+        this.isDeleteModalOpen = true;
+    }
+
+     // Close Delete Confirmation Modal
+     closeDeleteModal() {
+        this.isDeleteModalOpen = false;
+    }
+
+
 }
 
